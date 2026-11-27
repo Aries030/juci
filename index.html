@@ -8,123 +8,200 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== coss ui tokens (neutral), customised: Geist, #181818 / #6A6A6A, one accent ===== */
 :root{
-  --ink:#181818; --ink-2:#6A6A6A; --line:#E8E8E8; --fill:#F4F4F4; --fill-2:#ECECEC; --bg:#FFFFFF;
-  --accent:#0066CC; --accent-ink:#FFFFFF; --accent-soft:#E8F1FB;
-  --r-s:8px; --r-m:12px; --r-l:20px; --r-xl:28px;
+  --background:#fff; --foreground:#181818; --muted-foreground:#6A6A6A;
+  --primary:#181818; --primary-foreground:#fafafa;
+  --popover:#fff; --border:rgba(0,0,0,.08); --input:rgba(0,0,0,.10);
+  --accent-bg:rgba(0,0,0,.04); --muted:rgba(0,0,0,.04); --ring:#a3a3a3;
+  --destructive-foreground:#b91c1c;
+  --accent:#0066CC; --accent-ink:#fff;
+  --radius-sm:8px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --shadow-xs:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.05),0 2px 4px -2px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.05),0 4px 6px -4px rgba(0,0,0,.05);
+  --ring-focus:0 0 0 1px var(--background),0 0 0 3px var(--ring);
   --ease:cubic-bezier(.2,.7,.2,1);
+  /* legacy aliases used by the page */
+  --ink:var(--foreground); --ink-2:var(--muted-foreground); --line:var(--border); --fill:var(--accent-bg); --fill-2:rgba(0,0,0,.064); --bg:var(--background);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;font-weight:400;
+body{font-family:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--foreground);background:var(--background);font-size:16px;line-height:1.5;font-weight:400;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+:focus-visible{outline:none}
+[tabindex]:focus-visible{box-shadow:var(--ring-focus);border-radius:var(--radius-md)}
 .icon{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:none}
-.icon svg{width:24px;height:24px;display:block}
-.icon-sm svg{transform:scale(.75)}
+.icon svg{width:18px;height:18px;display:block;opacity:.8}
 
-/* header */
-header{position:sticky;top:0;z-index:20;background:var(--bg);height:72px;display:flex;align-items:center;
-  justify-content:space-between;padding:0 32px}
-.show-trigger{display:flex;align-items:center;gap:4px;height:40px;white-space:nowrap;min-width:0;padding:0 12px 0 16px;border-radius:var(--r-m);
-  font-size:18px;font-weight:600;letter-spacing:-.01em}
-.show-trigger:hover,.show-trigger[aria-expanded="true"]{background:var(--fill)}
-.show-trigger .icon{color:var(--ink-2);transition:transform .2s var(--ease)}
+/* ===== Button (coss: buttonVariants) ===== */
+.btn,.icon-btn,.toggle{position:relative;display:inline-flex;flex:none;align-items:center;justify-content:center;gap:8px;white-space:nowrap;
+  border:1px solid transparent;border-radius:var(--radius-lg);font-weight:500;font-size:14px;line-height:1;color:var(--foreground);
+  cursor:pointer;user-select:none;transition:background-color .15s,box-shadow .15s,color .15s,opacity .2s}
+.btn:focus-visible,.icon-btn:focus-visible,.toggle:focus-visible{box-shadow:var(--ring-focus)}
+.btn:disabled,.icon-btn:disabled,.toggle:disabled{opacity:.64;pointer-events:none}
+.btn{height:40px;padding:0 15px}
+.btn-xl{height:44px;padding:0 15px;font-size:16px}
+.btn-sm{height:32px;padding:0 9px;gap:6px}
+.btn-xs{height:28px;padding:0 7px;gap:4px;border-radius:var(--radius-md);font-size:13px}
+/* default (primary) */
+.btn-main{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 1px 2px rgba(24,24,24,.24)}
+.btn-main:hover{background:rgba(24,24,24,.9)}
+.btn-main:active{box-shadow:inset 0 1px rgba(0,0,0,.08)}
+.btn-main:focus-visible{box-shadow:inset 0 1px rgba(255,255,255,.16),var(--ring-focus)}
+/* outline */
+.btn-quiet,.btn-outline{background:var(--popover);border-color:var(--input);border-bottom-color:rgba(0,0,0,.14);box-shadow:var(--shadow-xs)}
+.btn-quiet:hover,.btn-outline:hover{background:rgba(0,0,0,.02)}
+.btn-quiet:active,.btn-outline:active{box-shadow:none}
+/* ghost */
+.btn-ghost,.icon-btn{background:transparent}
+.btn-ghost:hover,.icon-btn:hover{background:var(--accent-bg)}
+.btn-wide{grid-column:1 / -1}
+/* icon sizes */
+.icon-btn{width:36px;height:36px;padding:0;color:var(--muted-foreground)}
+.icon-btn:hover{color:var(--foreground)}
+.icon-btn.sm{width:32px;height:32px}
+.icon-btn.lg{width:40px;height:40px}
+
+/* ===== Toggle / Toggle Group (coss) ===== */
+.toggle{height:36px;min-width:36px;padding:0 7px;background:transparent}
+.toggle:hover{background:var(--accent-bg)}
+.toggle[aria-pressed="true"]{background:var(--fill-2);color:var(--foreground)}
+.toggle.sm{height:28px;min-width:28px;padding:0 7px;font-size:13px}
+.tgroup{display:inline-flex;width:fit-content}
+.tgroup.outline .toggle{background:var(--background);border-color:var(--input);box-shadow:var(--shadow-xs)}
+.tgroup.outline .toggle:hover{background:rgba(0,0,0,.02)}
+.tgroup.outline .toggle[aria-pressed="true"]{background:var(--fill-2);box-shadow:none}
+.tgroup .toggle:not(:first-child){border-top-left-radius:0;border-bottom-left-radius:0;border-left-width:0}
+.tgroup .toggle:not(:last-child){border-top-right-radius:0;border-bottom-right-radius:0}
+.tgroup .toggle:focus-visible{z-index:1}
+
+/* ===== Kbd (coss) ===== */
+kbd{pointer-events:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;height:20px;min-width:20px;padding:0 4px;
+  border-radius:4px;background:var(--muted);color:var(--muted-foreground);font:500 12px/1 "Geist",ui-sans-serif,system-ui,sans-serif}
+.btn-main kbd{background:rgba(255,255,255,.16);color:rgba(255,255,255,.8)}
+@media (hover:none){kbd{display:none}}
+
+/* ===== Popover / Menu (coss) ===== */
+.menu,.popover{position:fixed;z-index:40;background:var(--popover);color:var(--foreground);border:1px solid var(--border);border-bottom-color:rgba(0,0,0,.12);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);opacity:0;transform:scale(.98);transform-origin:var(--origin,top left);pointer-events:none;visibility:hidden;
+  transition:opacity .14s var(--ease),transform .14s var(--ease),visibility 0s linear .14s}
+.menu.open,.popover.open{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
+.menu{min-width:128px;padding:4px}
+.mi{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:32px;padding:4px 8px;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:400;text-align:left;white-space:nowrap;color:var(--foreground);cursor:default}
+.mi:hover,.mi.active,.mi:focus-visible{background:var(--accent-bg);outline:none}
+.mi .meta{margin-left:auto;color:var(--muted-foreground);opacity:.72;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+.mi .icon{width:16px;height:16px;color:var(--muted-foreground)}
+.mi .icon svg{width:16px;height:16px}
+.mi[aria-checked="true"]{font-weight:500}
+.mi.current .icon-check{color:var(--foreground)}
+.mlabel{padding:6px 8px;font-size:12px;font-weight:500;color:var(--muted-foreground)}
+.mi.danger{position:relative;overflow:hidden;color:var(--destructive-foreground)}
+.mi.danger .fill{position:absolute;inset:0;background:rgba(239,68,68,.08);transform-origin:left;transform:scaleX(0);border-radius:var(--radius-sm)}
+.mi.danger span{position:relative}
+.mi.danger.holding .fill{transform:scaleX(1);transition:transform 1.2s linear}
+
+/* ===== Switch (coss, menu-checkbox / switch) ===== */
+.switch{--t:16px;position:relative;display:inline-flex;align-items:center;flex:none;width:calc(var(--t)*2 - 2px);height:calc(var(--t) + 2px);padding:1px;border-radius:999px;
+  background:var(--input);box-shadow:inset 0 1px rgba(0,0,0,.04);transition:background-color .2s}
+.switch i{display:block;width:var(--t);height:var(--t);border-radius:999px;background:var(--background);box-shadow:0 1px 2px rgba(0,0,0,.1);transition:transform .15s}
+[aria-checked="true"] > .switch{background:var(--primary)}
+[aria-checked="true"] > .switch i{transform:translateX(calc(var(--t) - 4px))}
+
+/* ===== Slider (coss) ===== */
+.slider{position:relative;display:flex;align-items:center;flex:1;min-width:0;height:20px;touch-action:none;user-select:none;cursor:pointer}
+.slider .track{position:relative;flex:1;height:4px;border-radius:999px;background:var(--input)}
+.slider .range{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--primary)}
+.slider .thumb{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:999px;background:#fff;border:1px solid var(--input);
+  box-shadow:var(--shadow-xs);transition:transform .12s,box-shadow .12s}
+.slider:focus-visible .thumb{box-shadow:0 0 0 3px rgba(163,163,163,.24)}
+.slider.dragging .thumb{transform:scale(1.2);box-shadow:none}
+.slider:focus-visible{outline:none;box-shadow:none}
+
+/* ===== Tooltip (coss) ===== */
+.tip{position:fixed;z-index:60;display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--popover);color:var(--foreground);
+  border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);font-size:12px;line-height:1.4;white-space:nowrap;
+  opacity:0;transform:scale(.98);pointer-events:none;transition:opacity .12s,transform .12s}
+.tip.show{opacity:1;transform:none}
+
+/* ===== header ===== */
+header{position:sticky;top:0;z-index:20;background:var(--background);height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 32px}
+.show-trigger{height:40px;padding:0 11px 0 15px;gap:4px;font-size:18px;font-weight:600;letter-spacing:-.01em;min-width:0}
+.show-trigger .icon{color:var(--muted-foreground);transition:transform .2s var(--ease)}
+.show-trigger[aria-expanded="true"]{background:var(--accent-bg)}
 .show-trigger[aria-expanded="true"] .icon{transform:rotate(180deg)}
+#showTitle{overflow:hidden;text-overflow:ellipsis}
 .tools{display:flex;align-items:center;gap:4px}
-.icon-btn{width:40px;height:40px;border-radius:var(--r-m);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);
-  transition:background .15s,color .15s,opacity .2s}
-.icon-btn:hover{background:var(--fill);color:var(--ink)}
-.icon-btn[aria-pressed="true"]{color:var(--accent)}
 .intent{opacity:0;pointer-events:none}
 header:hover .intent,header:focus-within .intent,.intent[aria-expanded="true"]{opacity:1;pointer-events:auto}
 @media (hover:none){.intent{opacity:1;pointer-events:auto}}
 
-/* progress line */
-.progress{height:2px;background:var(--fill);margin:0 32px}
-.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s var(--ease)}
+/* sound popover */
+.popover.sound{width:272px;padding:16px}
+.sound .row1{display:flex;align-items:center;gap:12px}
+.sound .vol-val{width:28px;flex:none;text-align:right;font-size:14px;font-variant-numeric:tabular-nums;color:var(--muted-foreground)}
+.sound .label{font-size:14px;font-weight:500}
+.sound .line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.sound .line.click{cursor:pointer;margin-left:-8px;margin-right:-8px;padding:6px 8px;border-radius:var(--radius-sm);margin-bottom:-6px}
+.sound .line.click:hover{background:var(--accent-bg)}
 
-/* menus */
-.menu{position:fixed;z-index:40;min-width:208px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-l);
-  padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.06);opacity:0;transform:translateY(-4px);pointer-events:none;visibility:hidden;
-  transition:opacity .14s var(--ease),transform .14s var(--ease),visibility 0s linear .14s}
-.menu.open{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
-.mi{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:40px;padding:0 12px;
-  border-radius:var(--r-m);font-size:14px;font-weight:500;text-align:left;white-space:nowrap}
-.mi:hover,.mi.active,.mi:focus-visible{background:var(--fill);outline:none}
-.mi .meta{color:var(--ink-2);font-weight:400;font-variant-numeric:tabular-nums}
-.mi .icon{color:var(--ink-2)}
-.mi[aria-checked="true"] .icon{color:var(--accent)}
-.mi.current{color:var(--accent)}
-.mi.danger{position:relative;overflow:hidden;margin-top:8px}
-.mi.danger .fill{position:absolute;inset:0;background:#E2E2E2;transform-origin:left;transform:scaleX(0);border-radius:var(--r-m)}
-.mi.danger span{position:relative}
-.mi.danger.holding .fill{transform:scaleX(1);transition:transform 1.2s linear}
+/* progress (coss Progress) */
+.progress{height:4px;background:var(--input);margin:0 32px;border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s var(--ease)}
 
-/* stage */
+/* ===== stage ===== */
 main{max-width:672px;margin:0 auto;padding:72px 32px 160px}
 .view[hidden]{display:none}
 #studyView{transition:opacity .18s var(--ease),transform .18s var(--ease)}
 #studyView.leaving{opacity:0;transform:translateY(-8px)}
 #studyView.entering{opacity:0;transform:translateY(8px);transition:none}
-.card{outline:none;cursor:pointer;user-select:none;transition:opacity .18s var(--ease),transform .18s var(--ease)}
-.card.leaving{opacity:0;transform:translateY(-8px)}
-.card.entering{opacity:0;transform:translateY(8px)}
-.headword{display:flex;align-items:center;gap:8px;min-height:56px}
-.word{font-size:44px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
-.say{transition:opacity .15s,color .15s,background .15s}
-.say.playing{color:var(--accent)}
-.phon{margin-top:12px;color:var(--ink-2);font-size:16px}
-.phon b{font-weight:500;color:var(--ink-2);margin-right:12px}
-.quote{margin-top:48px;font-size:16px;line-height:1.75;font-weight:400;color:var(--ink);max-width:36em}
+.card{outline:none;cursor:pointer;user-select:none}
+.headword{display:flex;align-items:center;gap:8px;min-height:56px;flex-wrap:wrap}
+.word{font-size:44px;line-height:1.15;font-weight:600;letter-spacing:-.02em;margin-right:4px}
+.voice{display:inline-flex;align-items:center;gap:4px}
+.say.playing{color:var(--accent);background:var(--accent-bg)}
+.phon{margin-top:12px;color:var(--muted-foreground);font-size:16px}
+.phon b{font-weight:500;margin-right:12px}
+.quote{margin-top:48px;font-size:16px;line-height:1.75;max-width:36em}
 .quote mark{background:none;color:var(--accent);font-weight:600}
-.trans{margin-top:8px;color:var(--ink-2);font-size:14px;line-height:1.7;max-width:36em;transition:opacity .2s var(--ease),filter .2s var(--ease)}
+.trans{margin-top:8px;color:var(--muted-foreground);font-size:14px;line-height:1.7;max-width:36em;transition:opacity .2s var(--ease),filter .2s var(--ease)}
 .card:not(.revealed):not(.spell) .trans{opacity:0;filter:blur(8px)}
 .row-detail .trans{margin-top:4px}
-.scene{margin-top:16px;color:var(--ink-2);font-size:14px}
+.scene{margin-top:16px;color:var(--muted-foreground);font-size:14px}
 .meaning{margin-top:40px;min-height:36px;font-size:18px;font-weight:600;transition:opacity .2s var(--ease),filter .2s var(--ease)}
 .card:not(.revealed) .meaning{opacity:0;filter:blur(8px)}
-
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:56px}
-.btn{height:56px;border-radius:var(--r-l);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;
-  transition:background .15s,transform .08s}
-.btn:active{transform:scale(.98)}
-.btn-quiet{background:var(--fill)}
-.btn-quiet:hover{background:var(--fill-2)}
-.btn-main{background:var(--accent);color:var(--accent-ink)}
-.btn-main:hover{background:#0058B0}
-.btn-wide{grid-column:1 / -1}
-kbd{font:500 12px/1 "Geist",sans-serif;min-width:24px;height:24px;padding:0 8px;border-radius:var(--r-s);display:inline-flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.06);color:var(--ink-2)}
-.btn-main kbd{background:rgba(255,255,255,.18);color:#fff}
-@media (hover:none){kbd{display:none}}
+.actions .btn{width:100%;height:44px;font-size:16px;gap:12px}
 
-/* spelling */
+/* ===== spelling ===== */
 .spell{cursor:default}
-.prompt{display:flex;align-items:center;gap:8px;min-height:40px;font-size:18px;font-weight:600;line-height:1.4}
-.prompt b{font-size:14px;font-weight:500;color:var(--ink-2);margin-right:8px}
+.prompt{display:flex;align-items:center;gap:8px;min-height:40px;font-size:18px;font-weight:600;line-height:1.4;flex-wrap:wrap}
+.prompt > span:first-child{margin-right:4px}
+.prompt b{font-size:14px;font-weight:500;color:var(--muted-foreground);margin-right:8px}
 .spell .quote{margin-top:24px}
 .nw{white-space:nowrap}
-.blank{display:inline-block;width:64px;height:1em;border-bottom:2px solid var(--ink);vertical-align:-4px;margin:0 4px}
+.blank{display:inline-block;width:64px;height:1em;border-bottom:2px solid var(--foreground);vertical-align:-4px;margin:0 4px}
 .slots{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:12px 16px;margin-top:32px;min-height:48px}
 .sw{display:flex;gap:4px;white-space:nowrap}
-.slot{flex:none;width:var(--sw);height:48px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;border-bottom:2px solid #D4D4D4;
+.slot{flex:none;width:var(--sw);height:48px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;border-bottom:2px solid var(--input);
   font-size:var(--sf);font-weight:600;line-height:1;transition:border-color .15s,color .15s}
-.slot.filled{border-color:var(--ink)}
+.slot.filled{border-color:var(--foreground)}
 .slot.next{border-color:var(--accent)}
-.slot.hinted,.slot.given{color:var(--ink-2)}
-.slot.bad{color:var(--ink-2);text-decoration:line-through;border-color:var(--ink-2)}
+.slot.hinted,.slot.given{color:var(--muted-foreground)}
+.slot.bad{color:var(--muted-foreground);text-decoration:line-through;border-color:var(--muted-foreground)}
 .slots.ok .slot{color:var(--accent);border-color:var(--accent)}
-.wheel{position:relative;margin:40px auto 0;touch-action:none;user-select:none;-webkit-user-select:none}
+.wheel{position:relative;margin:40px auto 0;touch-action:none;user-select:none;-webkit-user-select:none;transition:opacity .2s var(--ease)}
 .wheel svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
 .wheel polyline{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.32}
-.tile{position:absolute;border-radius:50%;background:var(--fill);display:flex;align-items:center;justify-content:center;cursor:pointer;
-  font-size:var(--tf);font-weight:600;line-height:1;transition:background .12s,color .12s,transform .12s}
-.tile:hover{background:var(--fill-2)}
-.tile.on{background:var(--accent);color:#fff}
-.wheel{transition:opacity .2s var(--ease)}
+/* letter tiles = coss outline toggles, round */
+.tile{position:absolute;border-radius:999px;background:var(--background);border:1px solid var(--input);border-bottom-color:rgba(0,0,0,.14);box-shadow:var(--shadow-xs);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:var(--tf);font-weight:600;line-height:1;transition:background .12s,color .12s,border-color .12s}
+.tile:hover{background:rgba(0,0,0,.02)}
+.tile.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:none}
 .wheel.idle{opacity:.4;pointer-events:none}
 .wheel .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
 .wheel .center[hidden]{display:none}
@@ -134,64 +211,69 @@ kbd{font:500 12px/1 "Geist",sans-serif;min-width:24px;height:24px;padding:0 8px;
 .wheel.shake{animation:nudge .3s var(--ease)}
 @keyframes nudge{30%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
 
-/* done */
+/* ===== done ===== */
 .done h2{font-size:18px;font-weight:600}
 .done .big{font-size:44px;font-weight:600;letter-spacing:-.02em;margin-top:24px;font-variant-numeric:tabular-nums}
-.done .big .unit{font-size:18px;font-weight:500;color:var(--ink-2);margin-left:8px;letter-spacing:0}
-.done .stats{margin-top:12px;color:var(--ink-2);font-size:14px;display:flex;gap:24px}
+.done .big .unit{font-size:18px;font-weight:500;color:var(--muted-foreground);margin-left:8px;letter-spacing:0}
+.done .stats{margin-top:12px;color:var(--muted-foreground);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 24px}
 .done .actions{grid-template-columns:1fr}
 
-/* list */
+/* ===== list ===== */
 .list-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
 .list-head h2{font-size:18px;font-weight:600}
-.seg{display:flex;gap:4px;background:var(--fill);padding:4px;border-radius:var(--r-m)}
-.seg button{height:32px;padding:0 12px;border-radius:var(--r-s);font-size:14px;color:var(--ink-2);white-space:nowrap}
-.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);font-weight:500}
+.seg{display:inline-flex}
+.seg .toggle{font-variant-numeric:tabular-nums}
 .rows{list-style:none}
-.row{border-radius:var(--r-m);margin:0 -16px}
-.row-line{display:flex;align-items:center;gap:4px;border-radius:var(--r-m);padding-right:8px}
-.row-line:hover{background:var(--fill)}
-.row-main{display:flex;align-items:center;gap:16px;flex:1;min-width:0;min-height:56px;padding:8px 16px;text-align:left;border-radius:var(--r-m)}
+.row{margin:0 -16px}
+.row-line{display:flex;align-items:center;gap:4px;border-radius:var(--radius-lg);padding-right:8px}
+.row-line:hover{background:var(--accent-bg)}
+.row-main{display:flex;align-items:center;gap:16px;flex:1;min-width:0;min-height:56px;padding:8px 16px;text-align:left;border-radius:var(--radius-lg)}
+.row-main:focus-visible{box-shadow:var(--ring-focus)}
 .row .w{font-weight:500;min-width:9em}
-.row .m{color:var(--ink-2);font-size:14px;flex:1}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;background:#D4D4D4}
+.row .m{color:var(--muted-foreground);font-size:14px;flex:1}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--input)}
 .dot.learning{background:none;box-shadow:inset 0 0 0 2px var(--accent)}
 .dot.known{background:var(--accent)}
 .row .say{opacity:0}
-.row:hover .say,.row:focus-within .say{opacity:1}
+.row:hover .say,.row:focus-within .say,.row .say.playing{opacity:1}
 @media (hover:none){.row .say{opacity:1}}
-.row-detail{padding:0 16px 16px 40px;color:var(--ink);font-size:14px;line-height:1.7}
+.row-detail{padding:0 16px 16px 40px;font-size:14px;line-height:1.7}
 .row-detail mark{background:none;color:var(--accent);font-weight:600}
 .row-detail .scene{margin-top:4px}
-.empty{color:var(--ink-2);font-size:14px;padding:24px 0}
+.empty{color:var(--muted-foreground);font-size:14px;padding:24px 0}
 
-/* toast */
-.toast{position:fixed;left:50%;bottom:32px;z-index:50;transform:translate(-50%,16px);opacity:0;pointer-events:none;
-  display:flex;align-items:center;gap:16px;height:48px;padding:0 8px 0 20px;border-radius:var(--r-xl);background:var(--ink);color:#fff;font-size:14px;
-  visibility:hidden;transition:opacity .18s var(--ease),transform .18s var(--ease),visibility 0s linear .18s}
+/* ===== Toast (coss) ===== */
+.toast{position:fixed;left:50%;bottom:32px;z-index:50;width:calc(100% - 32px);max-width:360px;transform:translate(-50%,calc(100% + 32px));opacity:0;pointer-events:none;
+  display:flex;align-items:center;justify-content:space-between;gap:6px;padding:12px 12px 12px 14px;background:var(--popover);color:var(--foreground);
+  border:1px solid var(--border);border-bottom-color:rgba(0,0,0,.12);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-size:14px;
+  visibility:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .5s,visibility 0s linear .5s}
 .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;visibility:visible;transition-delay:0s}
-.toast button{height:32px;padding:0 12px;border-radius:var(--r-l);display:flex;align-items:center;gap:8px;color:#fff;font-weight:500}
-.toast button:hover{background:rgba(255,255,255,.12)}
-.toast kbd{background:rgba(255,255,255,.14);color:rgba(255,255,255,.8)}
+.toast button{height:28px;padding:0 7px;gap:4px;border-radius:var(--radius-md);font-size:13px;font-weight:500;display:inline-flex;align-items:center;
+  background:var(--popover);border:1px solid var(--input);border-bottom-color:rgba(0,0,0,.14);box-shadow:var(--shadow-xs)}
+.toast button:hover{background:rgba(0,0,0,.02)}
+.toast button:focus-visible{box-shadow:var(--ring-focus)}
 
 @media (max-width:600px){
-  header{padding:0 16px;height:64px}
+  header{padding:0 16px;height:64px;gap:8px}
   .progress{margin:0 16px}
   main{padding:48px 20px 136px}
   .word{font-size:36px}
   .quote{margin-top:36px}
   .row .w{min-width:7em}
   .list-head{flex-direction:column;align-items:flex-start}
+  .btn,.toggle{font-size:16px}
+  .icon-btn{width:40px;height:40px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <header>
-  <button class="show-trigger" id="showTrigger" aria-haspopup="menu" aria-expanded="false"><span id="showTitle"></span><span class="icon" data-i="ChevronDown"></span></button>
+  <button class="btn btn-ghost show-trigger" id="showTrigger" aria-haspopup="menu" aria-expanded="false"><span id="showTitle"></span><span class="icon" data-i="ChevronDown"></span></button>
   <div class="tools">
-    <button class="icon-btn" id="listBtn" aria-pressed="false" aria-label="词表" title="词表"><span class="icon" data-i="Book"></span></button>
-    <button class="icon-btn intent" id="moreBtn" aria-haspopup="menu" aria-expanded="false" aria-label="更多"><span class="icon" data-i="More"></span></button>
+    <button class="icon-btn" id="soundBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="声音" data-tip="声音"><span class="icon" id="soundIcon"></span></button>
+    <button class="toggle icon-btn" id="listBtn" aria-pressed="false" aria-label="词表" data-tip="词表|Esc 返回"><span class="icon" data-i="Book"></span></button>
+    <button class="icon-btn intent" id="moreBtn" aria-haspopup="menu" aria-expanded="false" aria-label="更多" data-tip="更多"><span class="icon" data-i="More"></span></button>
   </div>
 </header>
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
@@ -199,6 +281,20 @@ kbd{font:500 12px/1 "Geist",sans-serif;min-width:24px;height:24px;padding:0 8px;
 <div class="menu" id="rootMenu" role="menu"></div>
 <div class="menu" id="subMenu" role="menu"></div>
 <div class="menu" id="moreMenu" role="menu"></div>
+<div class="popover sound" id="soundPop" role="dialog" aria-label="声音">
+  <div class="row1">
+    <button class="icon-btn sm" id="muteBtn" aria-pressed="false" aria-label="静音" data-tip="静音"><span class="icon" id="muteIcon"></span></button>
+    <div class="slider" id="volSlider" role="slider" tabindex="0" aria-label="音量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+      <div class="track"><div class="range"></div></div><div class="thumb"></div>
+    </div>
+    <span class="vol-val" id="volVal">100</span>
+  </div>
+  <div class="line"><span class="label">发音</span>
+    <div class="tgroup outline" role="group" aria-label="发音" id="accentPop"></div>
+  </div>
+  <div class="line click" role="switch" tabindex="0" id="autoSpeak" aria-checked="true"><span class="label">翻开时自动发音</span><span class="switch"><i></i></span></div>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
 
 <main>
   <section class="view" id="studyView"></section>
@@ -511,7 +607,7 @@ const SHOWS = [
 ];
 
 
-const ICONS = {"VolumeHigh": "<path d=\"M2 10V14C2 16 3 17 5 17H6.43C6.8 17 7.17 17.11 7.49 17.3L10.41 19.13C12.93 20.71 15 19.56 15 16.59V7.41003C15 4.43003 12.93 3.29003 10.41 4.87003L7.49 6.70003C7.17 6.89003 6.8 7.00003 6.43 7.00003H5C3 7.00003 2 8.00003 2 10Z\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M18 8C19.78 10.37 19.78 13.63 18 16\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M19.83 5.5C22.72 9.35 22.72 14.65 19.83 18.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "Undo": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M7.53033 3.46967C7.82322 3.76256 7.82322 4.23744 7.53033 4.53033L5.81066 6.25L15.0358 6.25C15.94 6.24999 16.6693 6.24998 17.2576 6.3033C17.864 6.35826 18.3938 6.47456 18.875 6.75241C19.4451 7.08154 19.9185 7.55492 20.2476 8.12499C20.5254 8.60624 20.6417 9.13604 20.6967 9.74239C20.75 10.3307 20.75 11.06 20.75 11.9643V12.0358C20.75 12.94 20.75 13.6693 20.6967 14.2576C20.6418 14.8639 20.5255 15.3937 20.2476 15.875C19.9185 16.4451 19.4451 16.9185 18.875 17.2476C18.3938 17.5254 17.864 17.6417 17.2576 17.6967C16.6693 17.75 15.94 17.75 15.0358 17.75H8.00001C7.58579 17.75 7.25001 17.4142 7.25001 17C7.25001 16.5858 7.58579 16.25 8.00001 16.25H15C15.9484 16.25 16.6096 16.2493 17.1222 16.2028C17.6245 16.1573 17.9101 16.0726 18.125 15.9486C18.4671 15.7511 18.7511 15.467 18.9486 15.125C19.0726 14.9101 19.1573 14.6245 19.2028 14.1222C19.2493 13.6096 19.25 12.9484 19.25 12C19.25 11.0516 19.2493 10.3904 19.2028 9.87779C19.1573 9.37548 19.0726 9.0899 18.9486 8.87499C18.7511 8.53295 18.467 8.24892 18.125 8.05144C17.9101 7.92737 17.6245 7.84271 17.1222 7.79718C16.6096 7.75072 15.9484 7.75 15 7.75H5.81066L7.53033 9.46967C7.82322 9.76256 7.82322 10.2374 7.53033 10.5303C7.23744 10.8232 6.76256 10.8232 6.46967 10.5303L3.46967 7.53033C3.17678 7.23744 3.17678 6.76256 3.46967 6.46967L6.46967 3.46967C6.76256 3.17678 7.23744 3.17678 7.53033 3.46967Z\" fill=\"currentColor\"/>", "Check": "<path d=\"M21.5303 5.46967C21.8232 5.76256 21.8232 6.23744 21.5303 6.53033L9.53033 18.5303C9.23744 18.8232 8.76256 18.8232 8.46967 18.5303L2.46967 12.5303C2.17678 12.2374 2.17678 11.7626 2.46967 11.4697C2.76256 11.1768 3.23744 11.1768 3.53033 11.4697L9 16.9393L20.4697 5.46967C20.7626 5.17678 21.2374 5.17678 21.5303 5.46967Z\" fill=\"currentColor\"/>", "ChevronRight": "<polyline points=\"8.6666 3.6667 17 12 8.6666 20.3333\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "ChevronDown": "<polyline points=\"20.3333 8.6666 12 17 3.6667 8.6666\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "More": "<path d=\"M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/>", "Tv": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.4881 1.43057C15.8026 1.70014 15.839 2.17361 15.5694 2.48811L13.2021 5.25001L16.0549 5.25001C17.4225 5.24999 18.5248 5.24997 19.3918 5.36653C20.2919 5.48755 21.0497 5.74644 21.6516 6.34836C22.2536 6.95028 22.5125 7.70815 22.6335 8.60826C22.75 9.47523 22.75 10.5776 22.75 11.9451V16.0549C22.75 17.4225 22.75 18.5248 22.6335 19.3918C22.5125 20.2919 22.2536 21.0497 21.6517 21.6517C21.0497 22.2536 20.2919 22.5125 19.3918 22.6335C18.5248 22.7501 17.4225 22.75 16.0549 22.75L7.94513 22.75C6.57754 22.75 5.47522 22.7501 4.60825 22.6335C3.70814 22.5125 2.95027 22.2536 2.34835 21.6517C1.74643 21.0497 1.48754 20.2919 1.36652 19.3918C1.24996 18.5248 1.24998 17.4225 1.25 16.0549L1.25 11.9451C1.24998 10.5775 1.24996 9.47523 1.36652 8.60826C1.48754 7.70815 1.74643 6.95028 2.34835 6.34836C2.95027 5.74645 3.70814 5.48755 4.60825 5.36654C5.47521 5.24998 6.57753 5.24999 7.94512 5.25001L10.7979 5.25001L8.43056 2.48811C8.16099 2.17361 8.19741 1.70014 8.51191 1.43057C8.8264 1.16101 9.29988 1.19743 9.56944 1.51192L12 4.34757L14.4306 1.51192C14.7001 1.19743 15.1736 1.161 15.4881 1.43057ZM16.75 6.75079L16.75 21.2492C17.7958 21.246 18.5756 21.2297 19.1919 21.1469C19.9257 21.0482 20.3142 20.8678 20.591 20.591C20.8678 20.3142 21.0482 19.9257 21.1469 19.1919C21.2484 18.4365 21.25 17.4354 21.25 16V12C21.25 10.5646 21.2484 9.56348 21.1469 8.80813C21.0482 8.07436 20.8678 7.68578 20.591 7.40902C20.3142 7.13226 19.9257 6.95181 19.1919 6.85316C18.5756 6.77031 17.7958 6.75399 16.75 6.75079ZM15.25 21.25L15.25 6.75001L8 6.75001C6.56458 6.75001 5.56347 6.75161 4.80812 6.85316C4.07435 6.95181 3.68577 7.13226 3.40901 7.40902C3.13225 7.68579 2.9518 8.07436 2.85315 8.80813C2.75159 9.56348 2.75 10.5646 2.75 12L2.75 16C2.75 17.4354 2.75159 18.4365 2.85315 19.1919C2.9518 19.9257 3.13225 20.3142 3.40901 20.591C3.68577 20.8678 4.07435 21.0482 4.80812 21.1469C5.56347 21.2484 6.56459 21.25 8 21.25L15.25 21.25Z\" fill=\"currentColor\"/><path d=\"M20 16C20 15.4477 19.5523 15 19 15C18.4477 15 18 15.4477 18 16C18 16.5523 18.4477 17 19 17C19.5523 17 20 16.5523 20 16Z\" fill=\"currentColor\"/><path d=\"M20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12Z\" fill=\"currentColor\"/>", "Trash": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.0924 1.25H8.90788C7.33861 1.24998 6.08032 1.24996 5.10577 1.38767C4.09802 1.53007 3.25979 1.83575 2.64218 2.55292C2.02457 3.27008 1.84661 4.14438 1.85528 5.1621C1.86366 6.1463 2.05033 7.39066 2.28314 8.94256L3.49937 17.0508C3.67587 18.2275 3.81878 19.1804 4.02849 19.9262C4.24683 20.7027 4.56045 21.3453 5.13662 21.8415C5.71279 22.3377 6.39485 22.5525 7.19513 22.6533C7.96377 22.75 8.92732 22.75 10.1173 22.75H13.883C15.073 22.75 16.0365 22.75 16.8052 22.6533C17.6054 22.5525 18.2875 22.3377 18.8637 21.8415C19.4398 21.3453 19.7535 20.7027 19.9718 19.9262C20.1815 19.1805 20.3244 18.2276 20.5009 17.0509L21.7172 8.94253C21.95 7.39065 22.1366 6.14629 22.145 5.1621C22.1537 4.14438 21.9757 3.27008 21.3581 2.55292C20.7405 1.83575 19.9023 1.53007 18.8945 1.38767C17.92 1.24996 16.6617 1.24998 15.0924 1.25ZM3.77879 3.53175C4.05882 3.20658 4.47927 2.9911 5.31565 2.87292C6.17295 2.75177 7.32479 2.75 8.96727 2.75H15.033C16.6755 2.75 17.8273 2.75177 18.6846 2.87292C19.521 2.9911 19.9415 3.20658 20.2215 3.53175C20.5015 3.85692 20.6523 4.30468 20.6451 5.14933C20.6448 5.18248 20.6443 5.21604 20.6435 5.25H20.5005C20.5003 5.25 20.5007 5.25 20.5005 5.25H7.00045C7.00025 5.25 7.00065 5.25 7.00045 5.25H3.35678C3.35603 5.21603 3.35551 5.18248 3.35522 5.14933C3.34803 4.30468 3.49876 3.85692 3.77879 3.53175ZM5.18949 6.75H3.48546C3.53687 7.15852 3.60161 7.61096 3.67631 8.1155L3.75015 8.18934L5.18949 6.75ZM4.05013 10.6106L4.6686 14.7338L6.37599 12.9365L4.05013 10.6106ZM5.15659 17.9593C5.17275 18.0594 5.18872 18.1563 5.20463 18.25H5.39887L5.15659 17.9593ZM6.99527 19.75C6.99879 19.75 7.00232 19.75 7.00584 19.75H13.9972C13.9991 19.75 14.0009 19.75 14.0027 19.75H18.4577C18.299 20.2287 18.1176 20.5044 17.8848 20.7049C17.6171 20.9355 17.261 21.0841 16.6178 21.165C15.9538 21.2486 15.0849 21.25 13.833 21.25H10.1673C8.91538 21.25 8.04651 21.2486 7.38247 21.165C6.73934 21.0841 6.38321 20.9355 6.11546 20.7049C5.88266 20.5044 5.70127 20.2287 5.54256 19.75H6.99527ZM15.7131 18.25H18.1895L16.9018 16.9623L15.7131 18.25ZM19.0007 16.9399C19.0087 16.8869 19.0168 16.8332 19.0249 16.7788L19.404 14.2515L17.92 15.8592L19.0007 16.9399ZM19.856 11.2381L20.2249 8.77879C20.3197 8.14673 20.4033 7.5881 20.4704 7.09045L18.16 9.40079L19.856 11.2381ZM18.6895 6.75H15.7131L17.1418 8.2977L18.6895 6.75ZM12.2532 6.75H8.81081L10.5761 8.51531L12.2532 6.75ZM11.6895 18.25H9.31081L10.5002 17.0607L11.6895 18.25ZM7.40946 11.8486L4.81081 9.25L7.00015 7.06066L9.54266 9.60317L7.40946 11.8486ZM8.47047 12.9097L10.6037 10.6642L12.6895 12.75L10.5002 14.9393L8.47047 12.9097ZM11.5608 16L13.7502 13.8107L15.8403 15.9008L13.7385 18.1777L11.5608 16ZM14.8108 12.75L16.8585 14.7977L18.9795 12.5L17.0985 10.4623L14.8108 12.75ZM13.7502 11.6893L16.0803 9.35921L13.9923 7.09721L11.6371 9.57632L13.7502 11.6893ZM7.437 13.9975L9.43949 16L7.27782 18.1617L5.50363 16.0326L7.437 13.9975Z\" fill=\"currentColor\"/>", "ArrowLeft": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.5303 5.46967C10.8232 5.76256 10.8232 6.23744 10.5303 6.53033L5.81066 11.25H20C20.4142 11.25 20.75 11.5858 20.75 12C20.75 12.4142 20.4142 12.75 20 12.75H5.81066L10.5303 17.4697C10.8232 17.7626 10.8232 18.2374 10.5303 18.5303C10.2374 18.8232 9.76256 18.8232 9.46967 18.5303L3.46967 12.5303C3.17678 12.2374 3.17678 11.7626 3.46967 11.4697L9.46967 5.46967C9.76256 5.17678 10.2374 5.17678 10.5303 5.46967Z\" fill=\"currentColor\"/>", "X": "<path d=\"M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z\" fill=\"currentColor\"/>", "Book": "<path d=\"M7.25 7C7.25 6.58579 7.58579 6.25 8 6.25H16C16.4142 6.25 16.75 6.58579 16.75 7C16.75 7.41422 16.4142 7.75 16 7.75H8C7.58579 7.75 7.25 7.41422 7.25 7Z\" fill=\"currentColor\"/><path d=\"M8 9.75C7.58579 9.75 7.25 10.0858 7.25 10.5C7.25 10.9142 7.58579 11.25 8 11.25H13C13.4142 11.25 13.75 10.9142 13.75 10.5C13.75 10.0858 13.4142 9.75 13 9.75H8Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M9.94513 1.25C8.57754 1.24998 7.47521 1.24996 6.60825 1.36652C5.70814 1.48754 4.95027 1.74643 4.34835 2.34835C3.74643 2.95027 3.48754 3.70814 3.36652 4.60825C3.24996 5.47521 3.24998 6.57753 3.25 7.94512V16.0549C3.24998 17.4225 3.24996 18.5248 3.36652 19.3918C3.48754 20.2919 3.74643 21.0497 4.34835 21.6517C4.95027 22.2536 5.70814 22.5125 6.60825 22.6335C7.47522 22.75 8.57754 22.75 9.94513 22.75H14.0549C15.4225 22.75 16.5248 22.75 17.3918 22.6335C18.2919 22.5125 19.0497 22.2536 19.6517 21.6517C20.2536 21.0497 20.5125 20.2919 20.6335 19.3918C20.75 18.5248 20.75 17.4225 20.75 16.0549V7.94513C20.75 6.57754 20.75 5.47522 20.6335 4.60825C20.5125 3.70814 20.2536 2.95027 19.6517 2.34835C19.0497 1.74643 18.2919 1.48754 17.3918 1.36652C16.5248 1.24996 15.4225 1.24998 14.0549 1.25H9.94513ZM5.40901 3.40901C5.68577 3.13225 6.07435 2.9518 6.80812 2.85315C7.56347 2.75159 8.56459 2.75 10 2.75H14C15.4354 2.75 16.4365 2.75159 17.1919 2.85315C17.9257 2.9518 18.3142 3.13225 18.591 3.40901C18.8678 3.68577 19.0482 4.07435 19.1469 4.80812C19.2484 5.56347 19.25 6.56459 19.25 8V15.25L7.78198 15.25C6.96402 15.2497 6.40587 15.2495 5.92721 15.3778C5.49923 15.4925 5.10224 15.6798 4.75 15.9259V8C4.75 6.56459 4.75159 5.56347 4.85315 4.80812C4.9518 4.07435 5.13225 3.68577 5.40901 3.40901ZM4.77676 18.2491C4.79196 18.6029 4.81579 18.914 4.85315 19.1919C4.9518 19.9257 5.13225 20.3142 5.40901 20.591C5.68577 20.8678 6.07435 21.0482 6.80812 21.1469C7.56347 21.2484 8.56459 21.25 10 21.25H14C15.4354 21.25 16.4365 21.2484 17.1919 21.1469C17.9257 21.0482 18.3142 20.8678 18.591 20.591C18.8678 20.3142 19.0482 19.9257 19.1469 19.1919C19.2297 18.5756 19.246 17.7958 19.2492 16.75H7.89778C6.91952 16.75 6.57752 16.7564 6.31544 16.8267C5.59612 17.0194 5.02268 17.5541 4.77676 18.2491Z\" fill=\"currentColor\"/>", "Backspace": "<path d=\"M11.0303 8.96967C10.7374 8.67678 10.2625 8.67678 9.96965 8.96967C9.67676 9.26256 9.67676 9.73744 9.96965 10.0303L11.9393 12L9.96967 13.9697C9.67678 14.2626 9.67678 14.7374 9.96967 15.0303C10.2626 15.3232 10.7374 15.3232 11.0303 15.0303L13 13.0607L14.9696 15.0303C15.2625 15.3232 15.7374 15.3232 16.0303 15.0303C16.3232 14.7374 16.3232 14.2625 16.0303 13.9697L14.0606 12L16.0303 10.0304C16.3232 9.73746 16.3232 9.26258 16.0303 8.96969C15.7374 8.6768 15.2625 8.6768 14.9696 8.96969L13 10.9394L11.0303 8.96967Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M21.3191 4.63407C20.5538 3.88938 19.5855 3.55963 18.3866 3.40278C17.2186 3.24997 15.7251 3.24999 13.8342 3.25H11.1058C10.0228 3.24999 9.15832 3.24999 8.45039 3.31591C7.71946 3.38398 7.09979 3.52598 6.51512 3.84132C5.92948 4.15718 5.47496 4.59515 5.02578 5.16537C4.59197 5.7161 4.13289 6.43088 3.55968 7.32338L2.83702 8.44855C2.35887 9.19299 1.96846 9.80083 1.7023 10.3305C1.42424 10.8839 1.25 11.411 1.25 12C1.25 12.589 1.42424 13.1161 1.7023 13.6695C1.96845 14.1992 2.35886 14.807 2.83699 15.5514L3.55969 16.6766C4.1329 17.5691 4.59197 18.2839 5.02578 18.8346C5.47496 19.4048 5.92948 19.8428 6.51512 20.1587C7.09979 20.474 7.71947 20.616 8.45039 20.6841C9.15831 20.75 10.0228 20.75 11.1058 20.75H13.8341C15.725 20.75 17.2186 20.75 18.3866 20.5972C19.5855 20.4404 20.5538 20.1106 21.3191 19.3659C22.0872 18.6185 22.4299 17.6679 22.5924 16.4917C22.75 15.3511 22.75 13.8943 22.75 12.0577V11.9422C22.75 10.1056 22.75 8.64883 22.5924 7.50827C22.4299 6.33205 22.0872 5.38153 21.3191 4.63407ZM13.779 4.75C15.7373 4.75 17.1327 4.75151 18.192 4.89011C19.2319 5.02615 19.8343 5.2822 20.273 5.70908C20.7088 6.13319 20.9681 6.71126 21.1066 7.71356C21.2483 8.73957 21.25 10.0926 21.25 12C21.25 13.9074 21.2483 15.2604 21.1066 16.2864C20.9681 17.2887 20.7088 17.8668 20.273 18.2909C19.8343 18.7178 19.2319 18.9738 18.192 19.1099C17.1327 19.2485 15.7373 19.25 13.779 19.25H11.142C10.0146 19.25 9.21982 19.2493 8.58947 19.1906C7.97424 19.1333 7.5722 19.0246 7.22717 18.8385C6.88311 18.6529 6.57764 18.3806 6.20411 17.9064C5.82029 17.4192 5.39961 16.7657 4.80167 15.8347L4.12086 14.7747C3.61571 13.9882 3.26903 13.4466 3.04261 12.996C2.82407 12.5611 2.75 12.2714 2.75 12C2.75 11.7286 2.82407 11.4389 3.04261 11.004C3.26903 10.5534 3.61571 10.0118 4.12086 9.22531L4.80167 8.16532C5.39961 7.23433 5.82029 6.58082 6.20411 6.09357C6.57764 5.61938 6.88311 5.34711 7.22717 5.16154C7.5722 4.97545 7.97424 4.86674 8.58947 4.80945C9.21982 4.75075 10.0146 4.75 11.142 4.75L13.779 4.75Z\" fill=\"currentColor\"/>"};
+const ICONS = {"VolumeHigh": "<path d=\"M2 10V14C2 16 3 17 5 17H6.43C6.8 17 7.17 17.11 7.49 17.3L10.41 19.13C12.93 20.71 15 19.56 15 16.59V7.41003C15 4.43003 12.93 3.29003 10.41 4.87003L7.49 6.70003C7.17 6.89003 6.8 7.00003 6.43 7.00003H5C3 7.00003 2 8.00003 2 10Z\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M18 8C19.78 10.37 19.78 13.63 18 16\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M19.83 5.5C22.72 9.35 22.72 14.65 19.83 18.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "Undo": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M7.53033 3.46967C7.82322 3.76256 7.82322 4.23744 7.53033 4.53033L5.81066 6.25L15.0358 6.25C15.94 6.24999 16.6693 6.24998 17.2576 6.3033C17.864 6.35826 18.3938 6.47456 18.875 6.75241C19.4451 7.08154 19.9185 7.55492 20.2476 8.12499C20.5254 8.60624 20.6417 9.13604 20.6967 9.74239C20.75 10.3307 20.75 11.06 20.75 11.9643V12.0358C20.75 12.94 20.75 13.6693 20.6967 14.2576C20.6418 14.8639 20.5255 15.3937 20.2476 15.875C19.9185 16.4451 19.4451 16.9185 18.875 17.2476C18.3938 17.5254 17.864 17.6417 17.2576 17.6967C16.6693 17.75 15.94 17.75 15.0358 17.75H8.00001C7.58579 17.75 7.25001 17.4142 7.25001 17C7.25001 16.5858 7.58579 16.25 8.00001 16.25H15C15.9484 16.25 16.6096 16.2493 17.1222 16.2028C17.6245 16.1573 17.9101 16.0726 18.125 15.9486C18.4671 15.7511 18.7511 15.467 18.9486 15.125C19.0726 14.9101 19.1573 14.6245 19.2028 14.1222C19.2493 13.6096 19.25 12.9484 19.25 12C19.25 11.0516 19.2493 10.3904 19.2028 9.87779C19.1573 9.37548 19.0726 9.0899 18.9486 8.87499C18.7511 8.53295 18.467 8.24892 18.125 8.05144C17.9101 7.92737 17.6245 7.84271 17.1222 7.79718C16.6096 7.75072 15.9484 7.75 15 7.75H5.81066L7.53033 9.46967C7.82322 9.76256 7.82322 10.2374 7.53033 10.5303C7.23744 10.8232 6.76256 10.8232 6.46967 10.5303L3.46967 7.53033C3.17678 7.23744 3.17678 6.76256 3.46967 6.46967L6.46967 3.46967C6.76256 3.17678 7.23744 3.17678 7.53033 3.46967Z\" fill=\"currentColor\"/>", "Check": "<path d=\"M21.5303 5.46967C21.8232 5.76256 21.8232 6.23744 21.5303 6.53033L9.53033 18.5303C9.23744 18.8232 8.76256 18.8232 8.46967 18.5303L2.46967 12.5303C2.17678 12.2374 2.17678 11.7626 2.46967 11.4697C2.76256 11.1768 3.23744 11.1768 3.53033 11.4697L9 16.9393L20.4697 5.46967C20.7626 5.17678 21.2374 5.17678 21.5303 5.46967Z\" fill=\"currentColor\"/>", "ChevronRight": "<polyline points=\"8.6666 3.6667 17 12 8.6666 20.3333\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "ChevronDown": "<polyline points=\"20.3333 8.6666 12 17 3.6667 8.6666\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "More": "<path d=\"M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/>", "Tv": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.4881 1.43057C15.8026 1.70014 15.839 2.17361 15.5694 2.48811L13.2021 5.25001L16.0549 5.25001C17.4225 5.24999 18.5248 5.24997 19.3918 5.36653C20.2919 5.48755 21.0497 5.74644 21.6516 6.34836C22.2536 6.95028 22.5125 7.70815 22.6335 8.60826C22.75 9.47523 22.75 10.5776 22.75 11.9451V16.0549C22.75 17.4225 22.75 18.5248 22.6335 19.3918C22.5125 20.2919 22.2536 21.0497 21.6517 21.6517C21.0497 22.2536 20.2919 22.5125 19.3918 22.6335C18.5248 22.7501 17.4225 22.75 16.0549 22.75L7.94513 22.75C6.57754 22.75 5.47522 22.7501 4.60825 22.6335C3.70814 22.5125 2.95027 22.2536 2.34835 21.6517C1.74643 21.0497 1.48754 20.2919 1.36652 19.3918C1.24996 18.5248 1.24998 17.4225 1.25 16.0549L1.25 11.9451C1.24998 10.5775 1.24996 9.47523 1.36652 8.60826C1.48754 7.70815 1.74643 6.95028 2.34835 6.34836C2.95027 5.74645 3.70814 5.48755 4.60825 5.36654C5.47521 5.24998 6.57753 5.24999 7.94512 5.25001L10.7979 5.25001L8.43056 2.48811C8.16099 2.17361 8.19741 1.70014 8.51191 1.43057C8.8264 1.16101 9.29988 1.19743 9.56944 1.51192L12 4.34757L14.4306 1.51192C14.7001 1.19743 15.1736 1.161 15.4881 1.43057ZM16.75 6.75079L16.75 21.2492C17.7958 21.246 18.5756 21.2297 19.1919 21.1469C19.9257 21.0482 20.3142 20.8678 20.591 20.591C20.8678 20.3142 21.0482 19.9257 21.1469 19.1919C21.2484 18.4365 21.25 17.4354 21.25 16V12C21.25 10.5646 21.2484 9.56348 21.1469 8.80813C21.0482 8.07436 20.8678 7.68578 20.591 7.40902C20.3142 7.13226 19.9257 6.95181 19.1919 6.85316C18.5756 6.77031 17.7958 6.75399 16.75 6.75079ZM15.25 21.25L15.25 6.75001L8 6.75001C6.56458 6.75001 5.56347 6.75161 4.80812 6.85316C4.07435 6.95181 3.68577 7.13226 3.40901 7.40902C3.13225 7.68579 2.9518 8.07436 2.85315 8.80813C2.75159 9.56348 2.75 10.5646 2.75 12L2.75 16C2.75 17.4354 2.75159 18.4365 2.85315 19.1919C2.9518 19.9257 3.13225 20.3142 3.40901 20.591C3.68577 20.8678 4.07435 21.0482 4.80812 21.1469C5.56347 21.2484 6.56459 21.25 8 21.25L15.25 21.25Z\" fill=\"currentColor\"/><path d=\"M20 16C20 15.4477 19.5523 15 19 15C18.4477 15 18 15.4477 18 16C18 16.5523 18.4477 17 19 17C19.5523 17 20 16.5523 20 16Z\" fill=\"currentColor\"/><path d=\"M20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12Z\" fill=\"currentColor\"/>", "Trash": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.0924 1.25H8.90788C7.33861 1.24998 6.08032 1.24996 5.10577 1.38767C4.09802 1.53007 3.25979 1.83575 2.64218 2.55292C2.02457 3.27008 1.84661 4.14438 1.85528 5.1621C1.86366 6.1463 2.05033 7.39066 2.28314 8.94256L3.49937 17.0508C3.67587 18.2275 3.81878 19.1804 4.02849 19.9262C4.24683 20.7027 4.56045 21.3453 5.13662 21.8415C5.71279 22.3377 6.39485 22.5525 7.19513 22.6533C7.96377 22.75 8.92732 22.75 10.1173 22.75H13.883C15.073 22.75 16.0365 22.75 16.8052 22.6533C17.6054 22.5525 18.2875 22.3377 18.8637 21.8415C19.4398 21.3453 19.7535 20.7027 19.9718 19.9262C20.1815 19.1805 20.3244 18.2276 20.5009 17.0509L21.7172 8.94253C21.95 7.39065 22.1366 6.14629 22.145 5.1621C22.1537 4.14438 21.9757 3.27008 21.3581 2.55292C20.7405 1.83575 19.9023 1.53007 18.8945 1.38767C17.92 1.24996 16.6617 1.24998 15.0924 1.25ZM3.77879 3.53175C4.05882 3.20658 4.47927 2.9911 5.31565 2.87292C6.17295 2.75177 7.32479 2.75 8.96727 2.75H15.033C16.6755 2.75 17.8273 2.75177 18.6846 2.87292C19.521 2.9911 19.9415 3.20658 20.2215 3.53175C20.5015 3.85692 20.6523 4.30468 20.6451 5.14933C20.6448 5.18248 20.6443 5.21604 20.6435 5.25H20.5005C20.5003 5.25 20.5007 5.25 20.5005 5.25H7.00045C7.00025 5.25 7.00065 5.25 7.00045 5.25H3.35678C3.35603 5.21603 3.35551 5.18248 3.35522 5.14933C3.34803 4.30468 3.49876 3.85692 3.77879 3.53175ZM5.18949 6.75H3.48546C3.53687 7.15852 3.60161 7.61096 3.67631 8.1155L3.75015 8.18934L5.18949 6.75ZM4.05013 10.6106L4.6686 14.7338L6.37599 12.9365L4.05013 10.6106ZM5.15659 17.9593C5.17275 18.0594 5.18872 18.1563 5.20463 18.25H5.39887L5.15659 17.9593ZM6.99527 19.75C6.99879 19.75 7.00232 19.75 7.00584 19.75H13.9972C13.9991 19.75 14.0009 19.75 14.0027 19.75H18.4577C18.299 20.2287 18.1176 20.5044 17.8848 20.7049C17.6171 20.9355 17.261 21.0841 16.6178 21.165C15.9538 21.2486 15.0849 21.25 13.833 21.25H10.1673C8.91538 21.25 8.04651 21.2486 7.38247 21.165C6.73934 21.0841 6.38321 20.9355 6.11546 20.7049C5.88266 20.5044 5.70127 20.2287 5.54256 19.75H6.99527ZM15.7131 18.25H18.1895L16.9018 16.9623L15.7131 18.25ZM19.0007 16.9399C19.0087 16.8869 19.0168 16.8332 19.0249 16.7788L19.404 14.2515L17.92 15.8592L19.0007 16.9399ZM19.856 11.2381L20.2249 8.77879C20.3197 8.14673 20.4033 7.5881 20.4704 7.09045L18.16 9.40079L19.856 11.2381ZM18.6895 6.75H15.7131L17.1418 8.2977L18.6895 6.75ZM12.2532 6.75H8.81081L10.5761 8.51531L12.2532 6.75ZM11.6895 18.25H9.31081L10.5002 17.0607L11.6895 18.25ZM7.40946 11.8486L4.81081 9.25L7.00015 7.06066L9.54266 9.60317L7.40946 11.8486ZM8.47047 12.9097L10.6037 10.6642L12.6895 12.75L10.5002 14.9393L8.47047 12.9097ZM11.5608 16L13.7502 13.8107L15.8403 15.9008L13.7385 18.1777L11.5608 16ZM14.8108 12.75L16.8585 14.7977L18.9795 12.5L17.0985 10.4623L14.8108 12.75ZM13.7502 11.6893L16.0803 9.35921L13.9923 7.09721L11.6371 9.57632L13.7502 11.6893ZM7.437 13.9975L9.43949 16L7.27782 18.1617L5.50363 16.0326L7.437 13.9975Z\" fill=\"currentColor\"/>", "ArrowLeft": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.5303 5.46967C10.8232 5.76256 10.8232 6.23744 10.5303 6.53033L5.81066 11.25H20C20.4142 11.25 20.75 11.5858 20.75 12C20.75 12.4142 20.4142 12.75 20 12.75H5.81066L10.5303 17.4697C10.8232 17.7626 10.8232 18.2374 10.5303 18.5303C10.2374 18.8232 9.76256 18.8232 9.46967 18.5303L3.46967 12.5303C3.17678 12.2374 3.17678 11.7626 3.46967 11.4697L9.46967 5.46967C9.76256 5.17678 10.2374 5.17678 10.5303 5.46967Z\" fill=\"currentColor\"/>", "X": "<path d=\"M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z\" fill=\"currentColor\"/>", "Book": "<path d=\"M7.25 7C7.25 6.58579 7.58579 6.25 8 6.25H16C16.4142 6.25 16.75 6.58579 16.75 7C16.75 7.41422 16.4142 7.75 16 7.75H8C7.58579 7.75 7.25 7.41422 7.25 7Z\" fill=\"currentColor\"/><path d=\"M8 9.75C7.58579 9.75 7.25 10.0858 7.25 10.5C7.25 10.9142 7.58579 11.25 8 11.25H13C13.4142 11.25 13.75 10.9142 13.75 10.5C13.75 10.0858 13.4142 9.75 13 9.75H8Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M9.94513 1.25C8.57754 1.24998 7.47521 1.24996 6.60825 1.36652C5.70814 1.48754 4.95027 1.74643 4.34835 2.34835C3.74643 2.95027 3.48754 3.70814 3.36652 4.60825C3.24996 5.47521 3.24998 6.57753 3.25 7.94512V16.0549C3.24998 17.4225 3.24996 18.5248 3.36652 19.3918C3.48754 20.2919 3.74643 21.0497 4.34835 21.6517C4.95027 22.2536 5.70814 22.5125 6.60825 22.6335C7.47522 22.75 8.57754 22.75 9.94513 22.75H14.0549C15.4225 22.75 16.5248 22.75 17.3918 22.6335C18.2919 22.5125 19.0497 22.2536 19.6517 21.6517C20.2536 21.0497 20.5125 20.2919 20.6335 19.3918C20.75 18.5248 20.75 17.4225 20.75 16.0549V7.94513C20.75 6.57754 20.75 5.47522 20.6335 4.60825C20.5125 3.70814 20.2536 2.95027 19.6517 2.34835C19.0497 1.74643 18.2919 1.48754 17.3918 1.36652C16.5248 1.24996 15.4225 1.24998 14.0549 1.25H9.94513ZM5.40901 3.40901C5.68577 3.13225 6.07435 2.9518 6.80812 2.85315C7.56347 2.75159 8.56459 2.75 10 2.75H14C15.4354 2.75 16.4365 2.75159 17.1919 2.85315C17.9257 2.9518 18.3142 3.13225 18.591 3.40901C18.8678 3.68577 19.0482 4.07435 19.1469 4.80812C19.2484 5.56347 19.25 6.56459 19.25 8V15.25L7.78198 15.25C6.96402 15.2497 6.40587 15.2495 5.92721 15.3778C5.49923 15.4925 5.10224 15.6798 4.75 15.9259V8C4.75 6.56459 4.75159 5.56347 4.85315 4.80812C4.9518 4.07435 5.13225 3.68577 5.40901 3.40901ZM4.77676 18.2491C4.79196 18.6029 4.81579 18.914 4.85315 19.1919C4.9518 19.9257 5.13225 20.3142 5.40901 20.591C5.68577 20.8678 6.07435 21.0482 6.80812 21.1469C7.56347 21.2484 8.56459 21.25 10 21.25H14C15.4354 21.25 16.4365 21.2484 17.1919 21.1469C17.9257 21.0482 18.3142 20.8678 18.591 20.591C18.8678 20.3142 19.0482 19.9257 19.1469 19.1919C19.2297 18.5756 19.246 17.7958 19.2492 16.75H7.89778C6.91952 16.75 6.57752 16.7564 6.31544 16.8267C5.59612 17.0194 5.02268 17.5541 4.77676 18.2491Z\" fill=\"currentColor\"/>", "Backspace": "<path d=\"M11.0303 8.96967C10.7374 8.67678 10.2625 8.67678 9.96965 8.96967C9.67676 9.26256 9.67676 9.73744 9.96965 10.0303L11.9393 12L9.96967 13.9697C9.67678 14.2626 9.67678 14.7374 9.96967 15.0303C10.2626 15.3232 10.7374 15.3232 11.0303 15.0303L13 13.0607L14.9696 15.0303C15.2625 15.3232 15.7374 15.3232 16.0303 15.0303C16.3232 14.7374 16.3232 14.2625 16.0303 13.9697L14.0606 12L16.0303 10.0304C16.3232 9.73746 16.3232 9.26258 16.0303 8.96969C15.7374 8.6768 15.2625 8.6768 14.9696 8.96969L13 10.9394L11.0303 8.96967Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M21.3191 4.63407C20.5538 3.88938 19.5855 3.55963 18.3866 3.40278C17.2186 3.24997 15.7251 3.24999 13.8342 3.25H11.1058C10.0228 3.24999 9.15832 3.24999 8.45039 3.31591C7.71946 3.38398 7.09979 3.52598 6.51512 3.84132C5.92948 4.15718 5.47496 4.59515 5.02578 5.16537C4.59197 5.7161 4.13289 6.43088 3.55968 7.32338L2.83702 8.44855C2.35887 9.19299 1.96846 9.80083 1.7023 10.3305C1.42424 10.8839 1.25 11.411 1.25 12C1.25 12.589 1.42424 13.1161 1.7023 13.6695C1.96845 14.1992 2.35886 14.807 2.83699 15.5514L3.55969 16.6766C4.1329 17.5691 4.59197 18.2839 5.02578 18.8346C5.47496 19.4048 5.92948 19.8428 6.51512 20.1587C7.09979 20.474 7.71947 20.616 8.45039 20.6841C9.15831 20.75 10.0228 20.75 11.1058 20.75H13.8341C15.725 20.75 17.2186 20.75 18.3866 20.5972C19.5855 20.4404 20.5538 20.1106 21.3191 19.3659C22.0872 18.6185 22.4299 17.6679 22.5924 16.4917C22.75 15.3511 22.75 13.8943 22.75 12.0577V11.9422C22.75 10.1056 22.75 8.64883 22.5924 7.50827C22.4299 6.33205 22.0872 5.38153 21.3191 4.63407ZM13.779 4.75C15.7373 4.75 17.1327 4.75151 18.192 4.89011C19.2319 5.02615 19.8343 5.2822 20.273 5.70908C20.7088 6.13319 20.9681 6.71126 21.1066 7.71356C21.2483 8.73957 21.25 10.0926 21.25 12C21.25 13.9074 21.2483 15.2604 21.1066 16.2864C20.9681 17.2887 20.7088 17.8668 20.273 18.2909C19.8343 18.7178 19.2319 18.9738 18.192 19.1099C17.1327 19.2485 15.7373 19.25 13.779 19.25H11.142C10.0146 19.25 9.21982 19.2493 8.58947 19.1906C7.97424 19.1333 7.5722 19.0246 7.22717 18.8385C6.88311 18.6529 6.57764 18.3806 6.20411 17.9064C5.82029 17.4192 5.39961 16.7657 4.80167 15.8347L4.12086 14.7747C3.61571 13.9882 3.26903 13.4466 3.04261 12.996C2.82407 12.5611 2.75 12.2714 2.75 12C2.75 11.7286 2.82407 11.4389 3.04261 11.004C3.26903 10.5534 3.61571 10.0118 4.12086 9.22531L4.80167 8.16532C5.39961 7.23433 5.82029 6.58082 6.20411 6.09357C6.57764 5.61938 6.88311 5.34711 7.22717 5.16154C7.5722 4.97545 7.97424 4.86674 8.58947 4.80945C9.21982 4.75075 10.0146 4.75 11.142 4.75L13.779 4.75Z\" fill=\"currentColor\"/>", "VolumeLow": "<path d=\"M2 9.95997V14.04C2 16.08 3.02 17.1 5.06 17.1H6.52C6.9 17.1 7.28 17.21 7.6 17.41L10.58 19.27C13.16 20.88 15.26 19.71 15.26 16.67V7.31997C15.26 4.27997 13.15 3.10997 10.58 4.71997L7.6 6.58997C7.27 6.78997 6.9 6.89997 6.52 6.89997H5.06C3.02 6.89997 2 7.91997 2 9.95997Z\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M18 12H22\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "VolumeSlash": "<path d=\"M15 8.37003V7.41003C15 4.43003 12.93 3.29003 10.41 4.87003L7.49 6.70003C7.17 6.89003 6.8 7.00003 6.43 7.00003H5C3 7.00003 2 8.00003 2 10V14C2 16 3 17 5 17H7\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10.41 19.13C12.93 20.71 15 19.56 15 16.59V12.95\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M18.81 9.41992C19.71 11.5699 19.44 14.0799 18 15.9999\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M21.15 7.80005C22.62 11.29 22.18 15.37 19.83 18.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M22 2L2 22\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "VolumeMute": "<path d=\"M5.5 9.99979V13.9998C5.5 15.9998 6.5 16.9998 8.5 16.9998H9.93C10.3 16.9998 10.67 17.1098 10.99 17.2998L13.91 19.1298C16.43 20.7098 18.5 19.5598 18.5 16.5898V7.40979C18.5 4.42979 16.43 3.28979 13.91 4.86979L10.99 6.69979C10.67 6.88979 10.3 6.99979 9.93 6.99979H8.5C6.5 6.99979 5.5 7.99979 5.5 9.99979Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/>", "VolumeX": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M22.5303 1.46967C22.8232 1.76256 22.8232 2.23744 22.5303 2.53033L2.53033 22.5303C2.23744 22.8232 1.76256 22.8232 1.46967 22.5303C1.17678 22.2374 1.17678 21.7626 1.46967 21.4697L5.19121 17.7481C4.30803 17.7386 3.63551 17.6859 3.02496 17.4034C2.33016 17.082 1.66141 16.4527 1.29828 15.7788C0.905663 15.0501 0.859593 14.2881 0.794087 13.2045C0.791489 13.1615 0.788861 13.1181 0.786179 13.0741C0.763733 12.7058 0.75 12.3416 0.75 12C0.75 11.6585 0.763733 11.2943 0.786179 10.926C0.788861 10.882 0.791489 10.8385 0.794087 10.7955C0.859593 9.712 0.905663 8.94996 1.29828 8.22128C1.66141 7.54732 2.33016 6.9181 3.02496 6.59664C3.77659 6.24889 4.62215 6.24933 5.83906 6.24998C5.89202 6.25 5.94569 6.25003 6.00008 6.25003C6.5366 6.25003 6.71956 6.24762 6.89132 6.21862C7.0752 6.18757 7.25452 6.13378 7.42513 6.05848C7.58448 5.98815 7.73856 5.88944 8.18647 5.59411L8.45324 5.41822C9.68412 4.60663 10.6712 3.95576 11.4848 3.56055C12.3108 3.15928 13.1241 2.9361 13.9423 3.21531C14.2142 3.30809 14.4759 3.44128 14.7109 3.60646C15.3503 4.05581 15.6552 4.74135 15.827 5.52977C15.9146 5.93197 15.9746 6.39532 16.0205 6.91886L21.4697 1.46967C21.7626 1.17678 22.2374 1.17678 22.5303 1.46967ZM14.6104 8.32893C14.5528 7.22797 14.4889 6.43466 14.3614 5.84912C14.2254 5.22532 14.0443 4.97136 13.8485 4.8337C13.7297 4.75023 13.5952 4.68181 13.4578 4.63492C13.2087 4.54989 12.8525 4.56376 12.1402 4.90978C11.426 5.25675 10.5209 5.85164 9.2311 6.70206L9.01216 6.84641C8.9955 6.85739 8.97906 6.86824 8.96284 6.87894C8.58264 7.12973 8.31931 7.30343 8.03077 7.43078C7.74641 7.55627 7.44756 7.64593 7.14108 7.69768C6.83009 7.7502 6.51464 7.75013 6.05917 7.75004C6.03973 7.75004 6.02004 7.75003 6.00008 7.75003C4.55641 7.75003 4.06911 7.76631 3.6548 7.958C3.25445 8.14323 2.82804 8.54443 2.6188 8.93278C2.40052 9.33789 2.36045 9.75309 2.2834 11.0173C2.26225 11.3642 2.25 11.6968 2.25 12C2.25 12.3033 2.26225 12.6358 2.2834 12.9828C2.36045 14.247 2.40052 14.6622 2.6188 15.0673C2.82804 15.4556 3.25445 15.8568 3.6548 16.0421C4.06911 16.2338 4.55641 16.25 6.00008 16.25C6.02004 16.25 6.03973 16.25 6.05917 16.25C6.29891 16.25 6.49985 16.2499 6.68178 16.2576L14.6104 8.32893ZM20.2645 6.3164C20.642 6.14605 21.0862 6.31403 21.2565 6.6916C21.7236 7.72674 22.25 9.45958 22.25 12C22.25 14.1916 21.8582 15.7829 21.45 16.8442C21.2462 17.374 21.0394 17.7692 20.8775 18.039C20.7966 18.1738 20.727 18.2772 20.6748 18.3504C20.6486 18.3869 20.6269 18.4159 20.6102 18.4375C20.6018 18.4483 20.5948 18.4572 20.5891 18.4643L20.5816 18.4736L20.5786 18.4772L20.5773 18.4788C20.577 18.4791 20.5762 18.4801 20 18L20.5762 18.4801C20.311 18.7983 19.8381 18.8413 19.5199 18.5762C19.2032 18.3123 19.1591 17.8426 19.42 17.5244C19.4207 17.5237 19.4218 17.5222 19.4235 17.52C19.4288 17.5132 19.4393 17.4994 19.4542 17.4785C19.4839 17.4368 19.5315 17.3668 19.5913 17.2673C19.7106 17.0683 19.8788 16.751 20.05 16.3058C20.3918 15.4171 20.75 14.0084 20.75 12C20.75 9.67366 20.2694 8.15099 19.8893 7.30849C19.7189 6.93093 19.8869 6.48676 20.2645 6.3164ZM18.164 9.26566C18.5696 9.18146 18.9666 9.44198 19.0508 9.84754C19.1609 10.378 19.25 11.0889 19.25 12C19.25 13.1101 19.1178 13.9228 18.9765 14.4738C18.9059 14.749 18.8333 14.9579 18.7745 15.1051C18.7451 15.1787 18.7191 15.2367 18.6986 15.2797C18.6884 15.3012 18.6795 15.3189 18.6723 15.333L18.6626 15.3514L18.6588 15.3585L18.6571 15.3615L18.6563 15.3629C18.6562 15.3632 18.6556 15.3642 18.0276 15.0153L18.6556 15.3642C18.4545 15.7263 17.9979 15.8568 17.6358 15.6556C17.2768 15.4562 17.1455 15.0056 17.3393 14.645L17.3443 14.6348C17.3512 14.6204 17.3643 14.5917 17.3818 14.548C17.4167 14.4608 17.4691 14.3135 17.5235 14.1012C17.6322 13.6772 17.75 12.9899 17.75 12C17.75 11.1873 17.6706 10.5787 17.5821 10.1525C17.4979 9.74689 17.7584 9.34986 18.164 9.26566ZM15.5 11.25C15.9142 11.25 16.25 11.5858 16.25 12C16.25 12.552 16.2137 13.5253 16.1619 14.6402L16.1592 14.6977C16.0914 16.1576 16.037 17.3296 15.8778 18.2139C15.7159 19.1134 15.417 19.8974 14.7109 20.3936C14.4759 20.5588 14.2142 20.692 13.9423 20.7848C13.2003 21.038 12.4627 20.8773 11.7204 20.549C10.9875 20.2248 10.1277 19.6808 9.08893 19.0001C8.74247 18.7731 8.64566 18.3082 8.87269 17.9617C9.09972 17.6153 9.56462 17.5184 9.91107 17.7455C10.9698 18.4393 11.7264 18.9114 12.3272 19.1772C12.9187 19.4389 13.2324 19.4421 13.4578 19.3651C13.5952 19.3183 13.7297 19.2498 13.8485 19.1664C14.0651 19.0141 14.2626 18.7195 14.4015 17.9482C14.541 17.1733 14.5924 16.1014 14.6635 14.5706C14.7156 13.451 14.75 12.5118 14.75 12C14.75 11.5858 15.0858 11.25 15.5 11.25Z\" fill=\"currentColor\"/>", "VolumeCross": "<path d=\"M2 10.1595V14.1595C2 16.1595 3 17.1595 5 17.1595H6.43C6.8 17.1595 7.17 17.2695 7.49 17.4595L10.41 19.2895C12.93 20.8695 15 19.7195 15 16.7495V7.56946C15 4.58946 12.93 3.44946 10.41 5.02946L7.49 6.85946C7.17 7.04946 6.8 7.15946 6.43 7.15946H5C3 7.15946 2 8.15946 2 10.1595Z\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M22 14.1194L18.04 10.1594\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-miterlimit=\"10\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M21.96 10.1995L18 14.1595\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-miterlimit=\"10\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"};
 const DAY = 864e5;
 const INTERVALS = [0, 1*DAY, 2*DAY, 4*DAY, 8*DAY, 16*DAY, 32*DAY];
 const MASTERED_BOX = 4;
@@ -526,7 +622,7 @@ const store = {
   get(k, d) { try { const v = KV ? KV.getItem(k) : mem[k]; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { const s = JSON.stringify(v); try { KV ? KV.setItem(k, s) : (mem[k] = s); } catch (e) { mem[k] = s; } }
 };
-const prefs = Object.assign({ show: "clarksons-farm", speak: true }, store.get("jc.prefs", {}));
+const prefs = Object.assign({ show: "clarksons-farm", speak: true, volume: 1, muted: false, accent: null }, store.get("jc.prefs", {}));
 const progress = store.get("jc.progress", {});
 const savePrefs = () => store.set("jc.prefs", prefs);
 const saveProgress = () => store.set("jc.progress", progress);
@@ -568,6 +664,25 @@ function dictAudio(text, lang) {
   }
   return a;
 }
+/* accent: the show decides until the learner picks one; the pick then holds everywhere */
+const ACCENTS = [["uk", "英", "en-GB"], ["us", "美", "en-US"]];
+function accentId() { return prefs.accent || (show.lang === "en-US" ? "us" : "uk"); }
+function accentLang() { return accentId() === "us" ? "en-US" : "en-GB"; }
+function accentToggles(cls) {
+  const cur = accentId();
+  return ACCENTS.map(([id, label]) => `<button class="toggle ${cls || ""}" data-accent="${id}" aria-pressed="${cur === id}" aria-label="${label}音" data-tip="${label}音">${label}</button>`).join("");
+}
+function voiceHTML(w) {
+  return `<span class="voice"><button class="icon-btn say" data-act="say" data-word="${esc(w)}" aria-label="发音" data-tip="发音|↑">${icon("VolumeHigh")}</button><span class="tgroup outline" role="group" aria-label="发音">${accentToggles("sm")}</span></span>`;
+}
+function setAccent(id, play) {
+  prefs.accent = id; savePrefs();
+  document.querySelectorAll("[data-accent]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.accent === id)));
+  if (play) { const c = current(); if (c && view === "study") speak(show.words[c.i][0], accentLang()); }
+}
+/* volume */
+const vol = () => prefs.muted ? 0 : Math.max(0, Math.min(1, prefs.volume));
+function applyVolume() { if (liveAudio) liveAudio.volume = vol(); }
 function preloadWord(text, lang) { try { dictAudio(text, lang); } catch (_) {} }
 function setPlaying(on) { document.querySelectorAll(".say").forEach(b => b.classList.toggle("playing", on && b.dataset.word === speakingWord)); }
 function stopAll() {
@@ -581,7 +696,7 @@ function speakTTS(text, lang, seq, attempt = 0) {
   const voice = pool[attempt] || null;
   if (speechSynthesis.paused) speechSynthesis.resume();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; if (voice) u.voice = voice; u.rate = .92;
+  u.lang = lang; if (voice) u.voice = voice; u.rate = .92; u.volume = vol();
   let started = false;
   const next = () => { if (seq === speakSeq && attempt < 2 && pool.length > attempt + 1) { speechSynthesis.cancel(); speakTTS(text, lang, seq, attempt + 1); } else if (seq === speakSeq) setPlaying(false); };
   u.onstart = () => { started = true; if (seq === speakSeq) setPlaying(true); };
@@ -591,13 +706,18 @@ function speakTTS(text, lang, seq, attempt = 0) {
   speechSynthesis.speak(u);
   setTimeout(() => { if (!started) next(); }, 1800);
 }
-function speak(text, lang) {
+function speak(text, lang, explicit) {
+  if (vol() === 0) {
+    if (!explicit) return;
+    prefs.muted = false; if (prefs.volume === 0) prefs.volume = .6; savePrefs(); paintSound();
+  }
   const seq = ++speakSeq;
   stopAll();
   speakingWord = text;
   let a;
   try { a = dictAudio(text, lang); } catch (_) { speakTTS(text, lang, seq); return; }
   liveAudio = a;
+  a.volume = vol();
   let started = false, fell = false;
   const fallback = () => { if (fell || seq !== speakSeq) return; fell = true; if (liveAudio === a) { a.pause(); liveAudio = null; } speakTTS(text, lang, seq); };
   a.onplaying = () => { started = true; if (seq === speakSeq) setPlaying(true); };
@@ -608,7 +728,7 @@ function speak(text, lang) {
   if (pr && pr.catch) pr.catch(err => { if (err && err.name !== "AbortError") fallback(); });
   setTimeout(() => { if (!started) fallback(); }, 2500);
 }
-function speakCurrent() { const c = current(); if (c) speak(show.words[c.i][0], show.lang); }
+function speakCurrent() { const c = current(); if (c) speak(show.words[c.i][0], accentLang(), true); }
 
 /* ---------- session: the system decides what to study ---------- */
 let show = showById(prefs.show);
@@ -688,7 +808,7 @@ function reveal(force) {
   const card = $(".card"); if (card) card.classList.toggle("revealed", session.revealed);
   document.querySelectorAll(".card .meaning, .card .trans").forEach(m => m.setAttribute("aria-hidden", String(!session.revealed)));
   const a = $("#actions"); if (a) a.innerHTML = actionsHTML();
-  if (session.revealed && prefs.speak) speak(show.words[c.i][0], show.lang);
+  if (session.revealed && prefs.speak) speak(show.words[c.i][0], accentLang());
 }
 
 /* ---------- spelling (letter wheel, after Word Forest) ---------- */
@@ -699,7 +819,7 @@ function startSpell(i) {
   let order = ans.map((_, k) => k);
   for (let n = 0; n < 12; n++) { order = shuffle(order); if (ans.length < 3 || order.some((v, k) => ans[v] !== ans[k])) break; }
   spell = { i, show: show.id, word, ans, tiles: order.map(k => ans[k]), used: [], hinted: [], errors: 0, hints: 0, state: "typing", bad: -1, timer: 0 };
-  if (prefs.speak) speak(word, show.lang);
+  if (prefs.speak) speak(word, accentLang());
 }
 const typed = () => spell.used.map(t => spell.tiles[t]);
 function firstWrong() { const ty = typed(); for (let k = 0; k < ty.length; k++) if (ty[k] !== spell.ans[k]) return k; return -1; }
@@ -730,16 +850,16 @@ function checkSpell() {
   const w = firstWrong();
   if (w < 0) {
     if (!spell.errors && !spell.hints) {
-      spell.state = "done"; paintSpell(); speak(spell.word, show.lang);
+      spell.state = "done"; paintSpell(); speak(spell.word, accentLang());
       spell.timer = setTimeout(() => finishSpell(true), 900);
-    } else { spell.state = "failed"; spell.prefix = spell.ans.length; paintSpell(); speak(spell.word, show.lang); }
+    } else { spell.state = "failed"; spell.prefix = spell.ans.length; paintSpell(); speak(spell.word, accentLang()); }
     return;
   }
   spell.errors++; spell.state = "wrong"; spell.bad = w; paintSpell(); nudge($("#slots"));
   spell.timer = setTimeout(() => {
     if (!spell) return;
     spell.bad = -1;
-    if (spell.errors >= MAX_ERRORS) { spell.state = "failed"; spell.prefix = w; speak(spell.word, show.lang); }
+    if (spell.errors >= MAX_ERRORS) { spell.state = "failed"; spell.prefix = w; speak(spell.word, accentLang()); }
     else { spell.state = "typing"; spell.used = spell.used.slice(0, w); spell.hinted = spell.hinted.filter(k => k < w); }
     paintSpell();
   }, 560);
@@ -748,8 +868,8 @@ function nudge(el) { if (!el) return; el.classList.remove("shake"); void el.offs
 
 function spellActionsHTML() {
   if (spell.state === "failed") return `<button class="btn btn-main btn-wide" data-act="next">继续<kbd>Enter</kbd></button>`;
-  if (spell.state === "done") return `<button class="btn btn-quiet btn-wide" tabindex="-1" style="visibility:hidden">继续</button>`;
-  return `<button class="btn btn-quiet btn-wide" data-act="hint">提示<kbd>/</kbd></button>`;
+  if (spell.state === "done") return `<button class="btn btn-outline btn-wide" tabindex="-1" style="visibility:hidden">继续</button>`;
+  return `<button class="btn btn-outline btn-wide" data-act="hint">提示<kbd>/</kbd></button>`;
 }
 function paintSpell() {
   if (!spell) return;
@@ -847,8 +967,8 @@ function render() {
 }
 
 function actionsHTML() {
-  if (!session.revealed) return `<button class="btn btn-quiet btn-wide" data-act="reveal">显示释义<kbd>Space</kbd></button>`;
-  return `<button class="btn btn-quiet" data-act="forgot">忘了<kbd>←</kbd></button><button class="btn btn-main" data-act="known">记得<kbd>→</kbd></button>`;
+  if (!session.revealed) return `<button class="btn btn-outline btn-wide" data-act="reveal">显示释义<kbd>Space</kbd></button>`;
+  return `<button class="btn btn-outline" data-act="forgot">忘了<kbd>←</kbd></button><button class="btn btn-main" data-act="known">记得<kbd>→</kbd></button>`;
 }
 
 function renderStudy() {
@@ -868,11 +988,11 @@ function renderStudy() {
     return;
   }
   const [w, ipa, pos, cn, sent, tag, zh] = show.words[c.i];
-  preloadWord(w, show.lang);
+  preloadWord(w, accentLang());
   if (c.k === "spell") { renderSpell(c.i); return; }
   dropSpell();
   el.innerHTML = `<article class="card${session.revealed ? " revealed" : ""}" tabindex="-1" data-act="card">
-    <div class="headword"><h1 class="word">${esc(w)}</h1>${`<button class="icon-btn say" data-act="say" data-word="${esc(w)}" aria-label="发音" title="发音  ↑">${icon("VolumeHigh")}</button>`}</div>
+    <div class="headword"><h1 class="word">${esc(w)}</h1>${voiceHTML(w)}</div>
     <div class="phon"><b>${esc(pos)}</b>/${esc(ipa)}/</div>
     <p class="quote">${quoteHTML(sent, false)}</p>
     ${zh ? `<p class="trans" aria-hidden="${!session.revealed}">${esc(zh)}</p>` : ""}
@@ -900,7 +1020,7 @@ function renderSpell(i) {
   const g = spell.geo = wheelGeo(n, Math.min(avail, 360));
   const tiles = spell.tiles.map((l, k) => { const p = g.pts[k]; return `<span class="tile" style="left:${p.x - g.T / 2}px;top:${p.y - g.T / 2}px;width:${g.T}px;height:${g.T}px">${l}</span>`; }).join("");
   el.innerHTML = `<article class="card spell" tabindex="-1">
-    <div class="prompt"><span><b>${esc(pos)}</b>${esc(cn)}</span>${`<button class="icon-btn say" data-act="say" data-word="${esc(w)}" aria-label="发音" title="发音  ↑">${icon("VolumeHigh")}</button>`}</div>
+    <div class="prompt"><span><b>${esc(pos)}</b>${esc(cn)}</span>${voiceHTML(w)}</div>
     <p class="quote">${quoteHTML(sent, true)}</p>
     ${zh ? `<p class="trans">${esc(zh)}</p>` : ""}
     <div class="scene">${esc(show.title)} · ${esc(tag)}</div>
@@ -922,9 +1042,9 @@ function renderList() {
   const filters = [["all","全部",show.words.length],["learning","学习中",c.learning],["known","已掌握",c.known],["new","未学",c.new]];
   const rows = show.words.map((w, i) => ({ w, i, s: statusOf(show, i) })).filter(r => listFilter === "all" || r.s === listFilter);
   el.innerHTML = `<div class="list-head"><h2>${esc(show.title)}</h2>
-    <div class="seg" role="group">${filters.map(([id, t, n]) => `<button data-filter="${id}" aria-pressed="${listFilter === id}">${t} ${n}</button>`).join("")}</div></div>
+    <div class="seg tgroup outline" role="group" aria-label="筛选">${filters.map(([id, t, n]) => `<button class="toggle sm" data-filter="${id}" aria-pressed="${listFilter === id}">${t} ${n}</button>`).join("")}</div></div>
     ${rows.length ? `<ul class="rows">${rows.map(({w, i, s}) => `<li class="row">
-      <div class="row-line"><button class="row-main" data-row="${i}" aria-expanded="${openRow === i}"><span class="dot ${s}"></span><span class="w">${esc(w[0])}</span><span class="m">${esc(w[3])}</span></button>${`<button class="icon-btn say" data-say="${i}" data-word="${esc(w[0])}" aria-label="发音 ${esc(w[0])}">${icon("VolumeHigh")}</button>`}</div>
+      <div class="row-line"><button class="row-main" data-row="${i}" aria-expanded="${openRow === i}"><span class="dot ${s}"></span><span class="w">${esc(w[0])}</span><span class="m">${esc(w[3])}</span></button>${`<button class="icon-btn say" data-say="${i}" data-word="${esc(w[0])}" aria-label="发音 ${esc(w[0])}" data-tip="发音">${icon("VolumeHigh")}</button>`}</div>
       ${openRow === i ? `<div class="row-detail"><div>${show.quoted ? `“${mark(w[4])}”` : mark(w[4])}</div>${w[6] ? `<div class="trans">${esc(w[6])}</div>` : ""}<div class="scene">/${esc(w[1])}/ · ${esc(w[5])}</div></div>` : ""}
     </li>`).join("")}</ul>` : `<div class="empty">—</div>`}`;
 }
@@ -960,14 +1080,14 @@ function buildRoot() {
 }
 function buildSub(regionId) {
   const list = SHOWS.filter(s => s.region === regionId);
-  sub.innerHTML = list.map(s => { const c = counts(s); return `<button class="mi${s.id === show.id ? " current" : ""}" role="menuitemradio" aria-checked="${s.id === show.id}" data-show="${s.id}"><span>${esc(s.title)}</span><span class="meta">${c.known + c.learning ? `${c.known + c.learning}/${s.words.length}` : `${s.words.length} 词`}</span></button>`; }).join("");
+  sub.innerHTML = list.map(s => { const c = counts(s); return `<button class="mi${s.id === show.id ? " current" : ""}" role="menuitemradio" aria-checked="${s.id === show.id}" data-show="${s.id}"><span class="icon icon-check" aria-hidden="true">${s.id === show.id ? svg("Check") : ""}</span><span style="margin-right:auto">${esc(s.title)}</span><span class="meta">${c.known + c.learning ? `${c.known + c.learning}/${s.words.length}` : `${s.words.length} 词`}</span></button>`; }).join("");
 }
 function place(menu, x, y) { menu.style.left = x + "px"; menu.style.top = y + "px"; }
 function openRoot() {
-  closeMore();
+  closeMore(); closeSound();
   buildRoot();
   const r = trigger.getBoundingClientRect();
-  place(root, r.left, r.bottom + 8);
+  place(root, r.left, r.bottom + 4);
   root.classList.add("open"); trigger.setAttribute("aria-expanded", "true");
   openRegion(show.region, true);
 }
@@ -981,7 +1101,7 @@ function openRegion(id, instant) {
   buildSub(id);
   const item = root.querySelector(`[data-region="${id}"]`).getBoundingClientRect();
   const rr = root.getBoundingClientRect();
-  let x = rr.right + 4, y = item.top - 8;
+  let x = rr.right + 4, y = item.top - 5;
   const w = 248;
   if (x + w > innerWidth - 8) x = Math.max(8, rr.left + 24), y = rr.bottom + 4;
   place(sub, x, y); sub.style.minWidth = w + "px";
@@ -1053,15 +1173,13 @@ function menuKeys(e) {
 /* ---------- more menu ---------- */
 const more = $("#moreMenu"), moreBtn = $("#moreBtn");
 function buildMore() {
-  more.innerHTML = `<button class="mi" role="menuitemcheckbox" aria-checked="${prefs.speak}" data-more="speak"><span>自动发音</span>${prefs.speak ? icon("Check") : ""}</button>
-  <button class="mi danger" role="menuitem" data-more="reset"><i class="fill"></i><span id="resetLabel">重置 ${esc(show.title)}</span></button>`;
+  more.innerHTML = `<button class="mi danger" role="menuitem" data-more="reset"><i class="fill"></i><span id="resetLabel">重置 ${esc(show.title)}</span></button>`;
 }
-function openMore() { closeRoot(); buildMore(); const r = moreBtn.getBoundingClientRect(); more.style.minWidth = "232px"; place(more, Math.max(8, r.right - 232), r.bottom + 8); more.classList.add("open"); moreBtn.setAttribute("aria-expanded","true"); }
+function openMore() { closeRoot(); closeSound(); buildMore(); const r = moreBtn.getBoundingClientRect(); more.style.minWidth = "232px"; place(more, Math.max(8, r.right - 232), r.bottom + 4); more.classList.add("open"); moreBtn.setAttribute("aria-expanded","true"); }
 function closeMore() { more.classList.remove("open"); moreBtn.setAttribute("aria-expanded","false"); }
 moreBtn.addEventListener("click", () => more.classList.contains("open") ? closeMore() : openMore());
 more.addEventListener("click", e => {
   const b = e.target.closest("[data-more]"); if (!b) return;
-  if (b.dataset.more === "speak") { prefs.speak = !prefs.speak; savePrefs(); buildMore(); more.querySelector('[data-more="speak"]').focus(); }
 });
 /* destructive: press and hold, then undo is still offered */
 let holdT;
@@ -1087,7 +1205,10 @@ document.addEventListener("click", e => {
   if (!root.contains(e.target) && !sub.contains(e.target) && !trigger.contains(e.target)) closeRoot();
   if (!more.contains(e.target) && !moreBtn.contains(e.target)) closeMore();
   const sayRow = e.target.closest("[data-say]");
-  if (sayRow) { e.stopPropagation(); speak(show.words[+sayRow.dataset.say][0], show.lang); return; }
+  if (sayRow) { e.stopPropagation(); speak(show.words[+sayRow.dataset.say][0], accentLang(), true); return; }
+  const vb = e.target.closest(".voice button"); if (vb && e.detail > 0) setTimeout(() => vb.blur(), 0);
+  const acc = e.target.closest("[data-accent]");
+  if (acc) { e.stopPropagation(); setAccent(acc.dataset.accent, true); return; }
   const act = e.target.closest("[data-act]");
   if (act) {
     const a = act.dataset.act;
@@ -1108,7 +1229,7 @@ $("#listBtn").addEventListener("click", () => setView(view === "list" ? "study" 
 /* ---------- keyboard: letters always mean spelling, never shortcuts ---------- */
 document.addEventListener("keydown", e => {
   if (menuKeys(e)) { e.preventDefault(); return; }
-  if (e.target.closest && e.target.closest("input,textarea,[contenteditable]")) return;
+  if (e.target.closest && e.target.closest("input,textarea,[contenteditable],#soundPop")) return;
   const k = e.key, mod = e.metaKey || e.ctrlKey;
   if (mod && (k === "z" || k === "Z")) { if (history.length) { e.preventDefault(); undo(); } return; }
   if (mod || e.altKey) return;
@@ -1128,7 +1249,8 @@ document.addEventListener("keydown", e => {
     else if (k === " ") e.preventDefault();
     return;
   }
-  const onButton = document.activeElement && document.activeElement.tagName === "BUTTON" && !document.activeElement.closest(".card");
+  const ae = document.activeElement;
+  const onButton = ae && ae.tagName === "BUTTON" && (!ae.closest(".card") || ae.closest(".voice"));
   if (k === " " && !onButton) { e.preventDefault(); reveal(); }
   else if (k === "Enter" && !onButton) { e.preventDefault(); reveal(); }
   else if (k === "ArrowRight" || k === "2") { e.preventDefault(); grade(true); }
@@ -1138,8 +1260,96 @@ let resizeT;
 addEventListener("resize", () => { closeRoot(); closeMore(); clearTimeout(resizeT); resizeT = setTimeout(() => { const c = session && current(); if (view === "study" && c && c.k === "spell" && spell && spell.state === "typing" && !drag) renderSpell(c.i); }, 150); });
 addEventListener("scroll", () => { closeRoot(); closeMore(); }, {passive:true});
 
+/* ---------- sound popover (coss Popover + Slider + Toggle Group + Switch) ---------- */
+const soundBtn = $("#soundBtn"), soundPop = $("#soundPop"), slider = $("#volSlider");
+function soundIconName() { const v = vol(); return v === 0 ? "VolumeSlash" : v < .5 ? "VolumeLow" : "VolumeHigh"; }
+function paintSound() {
+  const v = vol(), pct = Math.round((prefs.muted ? 0 : prefs.volume) * 100);
+  $("#soundIcon").innerHTML = svg(soundIconName());
+  $("#muteIcon").innerHTML = svg(soundIconName());
+  $("#muteBtn").setAttribute("aria-pressed", String(v === 0));
+  $("#muteBtn").setAttribute("aria-label", v === 0 ? "取消静音" : "静音");
+  $("#muteBtn").dataset.tip = v === 0 ? "取消静音" : "静音";
+  slider.setAttribute("aria-valuenow", String(pct));
+  slider.setAttribute("aria-valuetext", pct + "%");
+  slider.querySelector(".range").style.width = pct + "%";
+  slider.querySelector(".thumb").style.left = pct + "%";
+  $("#volVal").textContent = pct;
+  soundBtn.setAttribute("aria-label", v === 0 ? "声音（已静音）" : "声音");
+  $("#accentPop").innerHTML = accentToggles("sm");
+  $("#autoSpeak").setAttribute("aria-checked", String(!!prefs.speak));
+  applyVolume();
+}
+function setVolume(x, preview) {
+  prefs.volume = Math.max(0, Math.min(1, Math.round(x * 100) / 100));
+  prefs.muted = prefs.volume === 0 ? prefs.muted : false;
+  savePrefs(); paintSound();
+  if (preview) speakCurrent();
+}
+function openSound() {
+  closeRoot(); closeMore(); paintSound();
+  const r = soundBtn.getBoundingClientRect(), w = 272;
+  soundPop.style.setProperty("--origin", "top right");
+  place(soundPop, Math.max(8, Math.min(innerWidth - w - 8, r.right - w)), r.bottom + 4);
+  soundPop.classList.add("open"); soundBtn.setAttribute("aria-expanded", "true");
+  requestAnimationFrame(() => slider.focus({ preventScroll: true }));
+}
+function closeSound(refocus) { if (!soundPop.classList.contains("open")) return; soundPop.classList.remove("open"); soundBtn.setAttribute("aria-expanded", "false"); if (refocus) soundBtn.focus(); }
+soundBtn.addEventListener("click", () => soundPop.classList.contains("open") ? closeSound() : openSound());
+$("#muteBtn").addEventListener("click", () => {
+  if (vol() === 0) { prefs.muted = false; if (prefs.volume === 0) prefs.volume = .6; savePrefs(); paintSound(); speakCurrent(); }
+  else { prefs.muted = true; savePrefs(); stopAll(); setPlaying(false); paintSound(); }
+});
+function toggleAuto() { prefs.speak = !prefs.speak; savePrefs(); paintSound(); }
+$("#autoSpeak").addEventListener("click", toggleAuto);
+$("#autoSpeak").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); e.stopPropagation(); toggleAuto(); } });
+/* slider: drag, click, keys; previews the level when you let go */
+let sliding = null;
+const fromX = x => { const r = slider.querySelector(".track").getBoundingClientRect(); return (x - r.left) / r.width; };
+slider.addEventListener("pointerdown", e => { e.preventDefault(); slider.focus(); sliding = e.pointerId; slider.setPointerCapture(e.pointerId); slider.classList.add("dragging"); setVolume(fromX(e.clientX)); });
+slider.addEventListener("pointermove", e => { if (sliding === e.pointerId) setVolume(fromX(e.clientX)); });
+const endSlide = e => { if (sliding !== e.pointerId) return; sliding = null; slider.classList.remove("dragging"); speakCurrent(); };
+slider.addEventListener("pointerup", endSlide); slider.addEventListener("pointercancel", endSlide);
+let keyPreviewT;
+slider.addEventListener("keydown", e => {
+  const step = { ArrowRight: .05, ArrowUp: .05, ArrowLeft: -.05, ArrowDown: -.05, PageUp: .2, PageDown: -.2 }[e.key];
+  const cur = prefs.muted ? 0 : prefs.volume;
+  let next = null;
+  if (step != null) next = cur + step; else if (e.key === "Home") next = 0; else if (e.key === "End") next = 1;
+  if (next == null) return;
+  e.preventDefault(); e.stopPropagation(); setVolume(next);
+  clearTimeout(keyPreviewT); keyPreviewT = setTimeout(speakCurrent, 350);
+});
+soundPop.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeSound(true); } });
+document.addEventListener("pointerdown", e => { if (soundPop.classList.contains("open") && !soundPop.contains(e.target) && !soundBtn.contains(e.target)) closeSound(); });
+
+/* ---------- tooltips (coss Tooltip): label + shortcut, after a short hover ---------- */
+const tipEl = $("#tip"); let tipT, tipFor = null;
+function showTip(el) {
+  const raw = el.dataset.tip; if (!raw) return;
+  const [label, key] = raw.split("|");
+  tipEl.innerHTML = esc(label) + (key && matchMedia("(hover:hover)").matches ? `<kbd>${esc(key)}</kbd>` : "");
+  const r = el.getBoundingClientRect(); tipEl.style.left = "0px"; tipEl.style.top = "0px"; tipEl.classList.add("show");
+  const tr = tipEl.getBoundingClientRect();
+  let x = r.left + r.width / 2 - tr.width / 2, y = r.top - tr.height - 6;
+  if (y < 8) y = r.bottom + 6;
+  tipEl.style.left = Math.max(8, Math.min(innerWidth - tr.width - 8, x)) + "px"; tipEl.style.top = y + "px";
+  tipFor = el;
+}
+function hideTip() { clearTimeout(tipT); tipEl.classList.remove("show"); tipFor = null; }
+document.addEventListener("pointerover", e => {
+  if (e.pointerType === "touch") return;
+  const el = e.target.closest && e.target.closest("[data-tip]");
+  if (el === tipFor) return;
+  hideTip(); if (el) tipT = setTimeout(() => { if (el.isConnected) showTip(el); }, 500);
+});
+document.addEventListener("pointerdown", hideTip, true);
+document.addEventListener("focusin", e => { const el = e.target.closest && e.target.closest("[data-tip]"); if (el && el.matches(":focus-visible")) { hideTip(); tipT = setTimeout(() => showTip(el), 300); } else hideTip(); });
+addEventListener("scroll", hideTip, { passive: true });
+
 /* ---------- boot ---------- */
 hydrateIcons();
+paintSound();
 if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) $("#undoKey").textContent = "⌘Z";
 buildSession();
 render();
