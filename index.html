@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>剧词</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#181818; --ink-2:#6A6A6A; --line:#E8E8E8; --fill:#F4F4F4; --fill-2:#ECECEC; --bg:#FFFFFF;
+  --accent:#0066CC; --accent-ink:#FFFFFF; --accent-soft:#E8F1FB;
+  --r-s:8px; --r-m:12px; --r-l:20px; --r-xl:28px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;font-weight:400;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.icon{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.icon svg{width:24px;height:24px;display:block}
+.icon-sm svg{transform:scale(.75)}
+
+/* header */
+header{position:sticky;top:0;z-index:20;background:var(--bg);height:72px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 32px}
+.show-trigger{display:flex;align-items:center;gap:4px;height:40px;padding:0 12px 0 16px;border-radius:var(--r-m);
+  font-size:18px;font-weight:600;letter-spacing:-.01em}
+.show-trigger:hover,.show-trigger[aria-expanded="true"]{background:var(--fill)}
+.show-trigger .icon{color:var(--ink-2);transition:transform .2s var(--ease)}
+.show-trigger[aria-expanded="true"] .icon{transform:rotate(180deg)}
+.tools{display:flex;align-items:center;gap:4px}
+.icon-btn{width:40px;height:40px;border-radius:var(--r-m);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);
+  transition:background .15s,color .15s,opacity .2s}
+.icon-btn:hover{background:var(--fill);color:var(--ink)}
+.icon-btn[aria-pressed="true"]{color:var(--accent)}
+.intent{opacity:0;pointer-events:none}
+header:hover .intent,header:focus-within .intent,.intent[aria-expanded="true"]{opacity:1;pointer-events:auto}
+@media (hover:none){.intent{opacity:1;pointer-events:auto}}
+
+/* progress line */
+.progress{height:2px;background:var(--fill);margin:0 32px}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s var(--ease)}
+
+/* menus */
+.menu{position:fixed;z-index:40;min-width:208px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-l);
+  padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.06);opacity:0;transform:translateY(-4px);pointer-events:none;visibility:hidden;
+  transition:opacity .14s var(--ease),transform .14s var(--ease),visibility 0s linear .14s}
+.menu.open{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
+.mi{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:40px;padding:0 12px;
+  border-radius:var(--r-m);font-size:14px;font-weight:500;text-align:left;white-space:nowrap}
+.mi:hover,.mi.active,.mi:focus-visible{background:var(--fill);outline:none}
+.mi .meta{color:var(--ink-2);font-weight:400;font-variant-numeric:tabular-nums}
+.mi .icon{color:var(--ink-2)}
+.mi[aria-checked="true"] .icon{color:var(--accent)}
+.mi.current{color:var(--accent)}
+.mi.danger{position:relative;overflow:hidden;margin-top:8px}
+.mi.danger .fill{position:absolute;inset:0;background:#E2E2E2;transform-origin:left;transform:scaleX(0);border-radius:var(--r-m)}
+.mi.danger span{position:relative}
+.mi.danger.holding .fill{transform:scaleX(1);transition:transform 1.2s linear}
+
+/* stage */
+main{max-width:672px;margin:0 auto;padding:72px 32px 160px}
+.view[hidden]{display:none}
+.card{outline:none;cursor:pointer;user-select:none;transition:opacity .18s var(--ease),transform .18s var(--ease)}
+.card.leaving{opacity:0;transform:translateY(-8px)}
+.card.entering{opacity:0;transform:translateY(8px)}
+.headword{display:flex;align-items:center;gap:8px;min-height:56px}
+.word{font-size:44px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
+.say{opacity:0;transition:opacity .15s}
+.headword:hover .say,.card:focus-within .say,.say:focus-visible{opacity:1}
+@media (hover:none){.say{opacity:1}}
+.phon{margin-top:12px;color:var(--ink-2);font-size:16px}
+.phon b{font-weight:500;color:var(--ink-2);margin-right:12px}
+.quote{margin-top:48px;font-size:16px;line-height:1.75;font-weight:400;color:var(--ink);max-width:36em}
+.quote mark{background:none;color:var(--accent);font-weight:600}
+.scene{margin-top:16px;color:var(--ink-2);font-size:14px}
+.meaning{margin-top:40px;min-height:36px;font-size:18px;font-weight:600;transition:opacity .2s var(--ease),filter .2s var(--ease)}
+.card:not(.revealed) .meaning{opacity:0;filter:blur(8px)}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:56px}
+.btn{height:56px;border-radius:var(--r-l);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:12px;
+  transition:background .15s,transform .08s}
+.btn:active{transform:scale(.98)}
+.btn-quiet{background:var(--fill)}
+.btn-quiet:hover{background:var(--fill-2)}
+.btn-main{background:var(--accent);color:var(--accent-ink)}
+.btn-main:hover{background:#0058B0}
+.btn-wide{grid-column:1 / -1}
+kbd{font:500 12px/1 "Geist",sans-serif;min-width:24px;height:24px;padding:0 8px;border-radius:var(--r-s);display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.06);color:var(--ink-2)}
+.btn-main kbd{background:rgba(255,255,255,.18);color:#fff}
+@media (hover:none){kbd{display:none}}
+
+/* done */
+.done h2{font-size:18px;font-weight:600}
+.done .big{font-size:44px;font-weight:600;letter-spacing:-.02em;margin-top:24px;font-variant-numeric:tabular-nums}
+.done .big .unit{font-size:18px;font-weight:500;color:var(--ink-2);margin-left:8px;letter-spacing:0}
+.done .stats{margin-top:12px;color:var(--ink-2);font-size:14px;display:flex;gap:24px}
+.done .actions{grid-template-columns:1fr}
+
+/* list */
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.list-head h2{font-size:18px;font-weight:600}
+.seg{display:flex;gap:4px;background:var(--fill);padding:4px;border-radius:var(--r-m)}
+.seg button{height:32px;padding:0 12px;border-radius:var(--r-s);font-size:14px;color:var(--ink-2);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);font-weight:500}
+.rows{list-style:none}
+.row{border-radius:var(--r-m);margin:0 -16px}
+.row-line{display:flex;align-items:center;gap:4px;border-radius:var(--r-m);padding-right:8px}
+.row-line:hover{background:var(--fill)}
+.row-main{display:flex;align-items:center;gap:16px;flex:1;min-width:0;min-height:56px;padding:8px 16px;text-align:left;border-radius:var(--r-m)}
+.row .w{font-weight:500;min-width:9em}
+.row .m{color:var(--ink-2);font-size:14px;flex:1}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:#D4D4D4}
+.dot.learning{background:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.dot.known{background:var(--accent)}
+.row .say{opacity:0}
+.row:hover .say,.row:focus-within .say{opacity:1}
+@media (hover:none){.row .say{opacity:1}}
+.row-detail{padding:0 16px 16px 40px;color:var(--ink);font-size:14px;line-height:1.7}
+.row-detail mark{background:none;color:var(--accent);font-weight:600}
+.row-detail .scene{margin-top:4px}
+.empty{color:var(--ink-2);font-size:14px;padding:24px 0}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:32px;z-index:50;transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:16px;height:48px;padding:0 8px 0 20px;border-radius:var(--r-xl);background:var(--ink);color:#fff;font-size:14px;
+  visibility:hidden;transition:opacity .18s var(--ease),transform .18s var(--ease),visibility 0s linear .18s}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;visibility:visible;transition-delay:0s}
+.toast button{height:32px;padding:0 12px;border-radius:var(--r-l);display:flex;align-items:center;gap:8px;color:#fff;font-weight:500}
+.toast button:hover{background:rgba(255,255,255,.12)}
+.toast kbd{background:rgba(255,255,255,.14);color:rgba(255,255,255,.8)}
+
+@media (max-width:600px){
+  header{padding:0 16px;height:64px}
+  .progress{margin:0 16px}
+  main{padding:48px 20px 136px}
+  .word{font-size:36px}
+  .quote{margin-top:36px}
+  .row .w{min-width:7em}
+  .list-head{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <button class="show-trigger" id="showTrigger" aria-haspopup="menu" aria-expanded="false"><span id="showTitle"></span><span class="icon" data-i="ChevronDown"></span></button>
+  <div class="tools">
+    <button class="icon-btn" id="listBtn" aria-pressed="false" aria-label="词表" title="词表  L"><span class="icon" data-i="Book"></span></button>
+    <button class="icon-btn intent" id="moreBtn" aria-haspopup="menu" aria-expanded="false" aria-label="更多"><span class="icon" data-i="More"></span></button>
+  </div>
+</header>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+<div class="menu" id="rootMenu" role="menu"></div>
+<div class="menu" id="subMenu" role="menu"></div>
+<div class="menu" id="moreMenu" role="menu"></div>
+
+<main>
+  <section class="view" id="studyView"></section>
+  <section class="view" id="listView" hidden></section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button id="toastUndo"><span>撤销</span><kbd>Z</kbd></button></div>
+
+<script>
+const SHOWS = [
+  { id: "clarksons-farm", title: "Clarkson's Farm", region: "uk", lang: "en-GB", words: [
+    ["agricultural","ˌæɡrɪˈkʌltʃərəl","adj.","农业的","Jeremy knew everything about supercars and almost nothing about [agricultural] machinery.","拖拉机"],
+    ["impractical","ɪmˈpræktɪkl","adj.","不切实际的","The enormous Lamborghini tractor proved [impractical] for the farm's narrow gateways.","拖拉机"],
+    ["mechanical","məˈkænɪkl","adj.","机械的","Half the problems on the farm turned out to be [mechanical] rather than agricultural.","拖拉机"],
+    ["inevitable","ɪnˈevɪtəbl","adj.","不可避免的","With Jeremy behind the wheel, a broken gate felt almost [inevitable].","拖拉机"],
+    ["yield","jiːld","n.","产量","After a wet spring, the barley [yield] was far lower than Jeremy had hoped.","收成"],
+    ["harvest","ˈhɑːvɪst","n.","收获；收割","Everyone waited for a few dry days so the [harvest] could finally begin.","收成"],
+    ["drought","draʊt","n.","干旱","A long [drought] left the soil cracked and the young crops struggling.","天气"],
+    ["unpredictable","ˌʌnprɪˈdɪktəbl","adj.","难以预测的","British weather is so [unpredictable] that a whole crop can be ruined in a week.","天气"],
+    ["deteriorate","dɪˈtɪəriəreɪt","v.","恶化","As the rain kept falling, conditions in the fields [deteriorated] day by day.","天气"],
+    ["fertile","ˈfɜːtaɪl","adj.","肥沃的","Some fields were far less [fertile] than Jeremy had assumed.","土地"],
+    ["cultivate","ˈkʌltɪveɪt","v.","耕种；培育","It takes years of patience to [cultivate] land that has been neglected.","土地"],
+    ["sustainable","səˈsteɪnəbl","adj.","可持续的","Charlie kept pushing for more [sustainable] ways of managing the land.","土地"],
+    ["conservation","ˌkɒnsəˈveɪʃn","n.","保护","Part of the land was set aside for [conservation] and wildlife.","土地"],
+    ["subsidy","ˈsʌbsədi","n.","补贴","Charlie explained that much of the farm's income came from government [subsidies].","Charlie"],
+    ["budget","ˈbʌdʒɪt","n.","预算","Charlie's spreadsheet made it clear that Jeremy was miles over [budget].","Charlie"],
+    ["sceptical","ˈskeptɪkl","adj.","怀疑的","Charlie looked [sceptical] whenever Jeremy announced another brilliant idea.","Charlie"],
+    ["investment","ɪnˈvestmənt","n.","投资","Every new machine was a huge [investment] that had to pay for itself.","账本"],
+    ["profit","ˈprɒfɪt","n.","利润","After a full year of hard work, the farm's [profit] was famously tiny.","账本"],
+    ["setback","ˈsetbæk","n.","挫折","Losing several sheep in one week was a painful [setback].","账本"],
+    ["meticulous","məˈtɪkjələs","adj.","一丝不苟的","Kaleb was [meticulous] about drilling seeds in perfectly straight lines.","Kaleb"],
+    ["incompetent","ɪnˈkɒmpɪtənt","adj.","无能的","Kaleb treated Jeremy as cheerfully [incompetent] at almost every job.","Kaleb"],
+    ["reluctant","rɪˈlʌktənt","adj.","不情愿的","Kaleb was [reluctant] to let Jeremy drive anything near the hedges.","Kaleb"],
+    ["compromise","ˈkɒmprəmaɪz","n.","妥协","Jeremy and Kaleb finally reached a [compromise] on how to plant the field.","Kaleb"],
+    ["accent","ˈæksənt","n.","口音","Gerald's rural [accent] was so thick that even the locals needed subtitles.","Gerald"],
+    ["rural","ˈrʊərəl","adj.","乡村的","The series showed how hard [rural] life can be behind the pretty scenery.","Gerald"],
+    ["livestock","ˈlaɪvstɒk","n.","牲畜","Charlie warned that [livestock] would mean early mornings and endless vet bills.","牲畜"],
+    ["vulnerable","ˈvʌlnərəbl","adj.","脆弱的；易受伤害的","Newborn lambs are extremely [vulnerable] on cold, wet nights.","牲畜"],
+    ["stubborn","ˈstʌbən","adj.","固执的","The sheep were as [stubborn] as Jeremy and refused to go where they were told.","牲畜"],
+    ["exhausted","ɪɡˈzɔːstɪd","adj.","精疲力竭的","By the end of lambing season, everyone on the farm looked [exhausted].","牲畜"],
+    ["pollinate","ˈpɒləneɪt","v.","授粉","Jeremy kept bees partly to [pollinate] the crops and partly to sell the honey.","蜜蜂"],
+    ["diversify","daɪˈvɜːsɪfaɪ","v.","多样化经营","To survive, the farm had to [diversify] into honey, potatoes and beer.","农场商店"],
+    ["venture","ˈventʃə(r)","n.","（有风险的）新事业","The farm shop was a [venture] that turned out far more popular than expected.","农场商店"],
+    ["inspection","ɪnˈspekʃn","n.","检查","Before the shop could sell meat, it had to pass a strict hygiene [inspection].","农场商店"],
+    ["planning permission","ˈplænɪŋ pəˈmɪʃn","n.","规划许可","The local council refused [planning permission] for Jeremy's restaurant.","议会审批"],
+    ["objection","əbˈdʒekʃn","n.","反对意见","Some neighbours raised [objections] about the traffic near the farm shop.","议会审批"],
+    ["regulation","ˌreɡjuˈleɪʃn","n.","规定；法规","Every new idea seemed to run straight into another [regulation].","议会审批"],
+    ["bureaucracy","bjʊəˈrɒkrəsi","n.","官僚作风","Jeremy grew more and more frustrated with the [bureaucracy] around his plans.","议会审批"],
+    ["ambitious","æmˈbɪʃəs","adj.","雄心勃勃的","Jeremy's [ambitious] plans rarely came with a realistic price tag.","Jeremy"],
+    ["persevere","ˌpɜːsəˈvɪə(r)","v.","坚持不懈","Despite the weather and the council, Jeremy [persevered] with the farm.","Jeremy"]
+  ]},
+  { id: "sherlock", title: "Sherlock", region: "uk", lang: "en-GB", words: [
+    ["deduce","dɪˈdjuːs","v.","推断","Sherlock [deduced] where John had served from nothing more than his tan and his posture.","推理"],
+    ["observant","əbˈzɜːvənt","adj.","善于观察的","Sherlock is so [observant] that a stain on a sleeve tells him a whole story.","推理"],
+    ["intuition","ˌɪntjuˈɪʃn","n.","直觉","John trusted his [intuition] about people more than Sherlock ever did.","推理"],
+    ["evidence","ˈevɪdəns","n.","证据","Lestrade needed hard [evidence], not just a brilliant theory.","案件"],
+    ["motive","ˈməʊtɪv","n.","动机","Every suspect seemed to have a [motive] but no opportunity.","案件"],
+    ["alibi","ˈæləbaɪ","n.","不在场证明","The suspect's [alibi] collapsed the moment Sherlock checked the train times.","案件"],
+    ["accomplice","əˈkʌmplɪs","n.","同谋","The killer could not have acted alone; there had to be an [accomplice].","案件"],
+    ["conspiracy","kənˈspɪrəsi","n.","阴谋","What began as a simple case grew into a [conspiracy] reaching the government.","案件"],
+    ["deliberately","dɪˈlɪbərətli","adv.","故意地","The clues had been left [deliberately], as if someone wanted to be found.","Moriarty"],
+    ["manipulate","məˈnɪpjuleɪt","v.","操纵","Moriarty loved to [manipulate] people into doing his work for him.","Moriarty"],
+    ["eccentric","ɪkˈsentrɪk","adj.","古怪的","Mrs Hudson had long accepted her tenant's [eccentric] habits.","221B"],
+    ["arrogant","ˈærəɡənt","adj.","傲慢的","Sherlock can sound [arrogant], but he is usually right.","221B"]
+  ]},
+  { id: "downton-abbey", title: "Downton Abbey", region: "uk", lang: "en-GB", words: [
+    ["aristocracy","ˌærɪˈstɒkrəsi","n.","贵族阶层","The war slowly changed what the [aristocracy] could take for granted.","楼上"],
+    ["inherit","ɪnˈherɪt","v.","继承","Because Robert had no son, a distant cousin would [inherit] the estate.","继承"],
+    ["heir","eə(r)","n.","继承人","The sinking of the Titanic left the family without an [heir].","继承"],
+    ["estate","ɪˈsteɪt","n.","庄园；地产","Running the [estate] cost far more than its farms could earn.","继承"],
+    ["hierarchy","ˈhaɪərɑːki","n.","等级制度","Below stairs, the [hierarchy] among the servants was just as strict as above.","楼下"],
+    ["etiquette","ˈetɪket","n.","礼仪","Carson treated every rule of dinner [etiquette] as sacred.","楼下"],
+    ["obligation","ˌɒblɪˈɡeɪʃn","n.","义务","Robert felt a deep [obligation] to the people who worked for him.","楼上"],
+    ["reputation","ˌrepjuˈteɪʃn","n.","名声","One scandal could ruin a family's [reputation] for a generation.","丑闻"],
+    ["scandal","ˈskændl","n.","丑闻","Mary's secret threatened to become the [scandal] of the season.","丑闻"],
+    ["conventional","kənˈvenʃənl","adj.","传统的；守旧的","Sybil had no interest in a [conventional] life of parties and marriage.","时代变化"],
+    ["decline","dɪˈklaɪn","n.","衰落","The family watched the slow [decline] of the old way of life.","时代变化"],
+    ["dignity","ˈdɪɡnəti","n.","尊严","Even in hard times, Mrs Hughes carried herself with quiet [dignity].","楼下"]
+  ]},
+  { id: "friends", title: "Friends", region: "us", lang: "en-US", words: [
+    ["commitment","kəˈmɪtmənt","n.","承诺；投入","Chandler panicked at the faintest hint of [commitment].","感情"],
+    ["reconcile","ˈrekənsaɪl","v.","和解","Ross and Rachel tried to [reconcile] more times than anyone could count.","感情"],
+    ["jealous","ˈdʒeləs","adj.","嫉妒的","Ross got [jealous] whenever Rachel mentioned someone from work.","感情"],
+    ["awkward","ˈɔːkwəd","adj.","尴尬的","The silence after the wrong name at the wedding was painfully [awkward].","感情"],
+    ["sarcastic","sɑːˈkæstɪk","adj.","讽刺的","Chandler hid every nervous moment behind a [sarcastic] joke.","Chandler"],
+    ["hilarious","hɪˈleəriəs","adj.","极其滑稽的","Joey's attempts at acting were often accidentally [hilarious].","Joey"],
+    ["audition","ɔːˈdɪʃn","n.","试镜","Joey turned up to every [audition] convinced this was his big break.","Joey"],
+    ["spontaneous","spɒnˈteɪniəs","adj.","自发的；随性的","Phoebe was the most [spontaneous] person in the group.","Phoebe"],
+    ["eccentric","ɪkˈsentrɪk","adj.","古怪的","Phoebe's songs were as [eccentric] as her stories about her past.","Phoebe"],
+    ["obsessive","əbˈsesɪv","adj.","强迫的；着迷的","Monica was [obsessive] about keeping the apartment spotless.","Monica"],
+    ["competitive","kəmˈpetətɪv","adj.","好胜的","Monica became fiercely [competitive] at even the simplest game.","Monica"],
+    ["loyal","ˈlɔɪəl","adj.","忠诚的","Whatever happened, the six of them stayed [loyal] to one another.","Central Perk"]
+  ]},
+  { id: "breaking-bad", title: "Breaking Bad", region: "us", lang: "en-US", words: [
+    ["diagnosis","ˌdaɪəɡˈnəʊsɪs","n.","诊断","Walter's cancer [diagnosis] changed everything in a single afternoon.","Walter"],
+    ["desperate","ˈdespərət","adj.","绝望的；不顾一切的","[Desperate] to provide for his family, Walter made a terrible choice.","Walter"],
+    ["transformation","ˌtrænsfəˈmeɪʃn","n.","转变","The show traces Walter's [transformation] from teacher to criminal.","Walter"],
+    ["arrogance","ˈærəɡəns","n.","傲慢","In the end, it was Walter's [arrogance] that undid him.","Walter"],
+    ["integrity","ɪnˈteɡrəti","n.","正直","Hank never lost his [integrity], even when the case became personal.","Hank"],
+    ["suspicious","səˈspɪʃəs","adj.","怀疑的；可疑的","Skyler grew [suspicious] of Walter's long, unexplained absences.","Skyler"],
+    ["deceive","dɪˈsiːv","v.","欺骗","Walter had to [deceive] everyone he loved to keep his secret.","Skyler"],
+    ["consequence","ˈkɒnsɪkwəns","n.","后果","Every lie seemed to have a worse [consequence] than the last.","代价"],
+    ["ruthless","ˈruːθləs","adj.","无情的","Gus was calm, polite and completely [ruthless].","Gus"],
+    ["manipulate","məˈnɪpjuleɪt","v.","操纵","Walter learned to [manipulate] Jesse with guilt and false kindness.","Jesse"],
+    ["illegal","ɪˈliːɡl","adj.","非法的","The [illegal] business grew faster than Walter could control.","代价"],
+    ["remorse","rɪˈmɔːs","n.","悔恨","Jesse was eaten up by [remorse] in a way Walter never was.","Jesse"]
+  ]}
+];
+
+
+const ICONS = {"VolumeHigh": "<path d=\"M2 10V14C2 16 3 17 5 17H6.43C6.8 17 7.17 17.11 7.49 17.3L10.41 19.13C12.93 20.71 15 19.56 15 16.59V7.41003C15 4.43003 12.93 3.29003 10.41 4.87003L7.49 6.70003C7.17 6.89003 6.8 7.00003 6.43 7.00003H5C3 7.00003 2 8.00003 2 10Z\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M18 8C19.78 10.37 19.78 13.63 18 16\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M19.83 5.5C22.72 9.35 22.72 14.65 19.83 18.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "Undo": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M7.53033 3.46967C7.82322 3.76256 7.82322 4.23744 7.53033 4.53033L5.81066 6.25L15.0358 6.25C15.94 6.24999 16.6693 6.24998 17.2576 6.3033C17.864 6.35826 18.3938 6.47456 18.875 6.75241C19.4451 7.08154 19.9185 7.55492 20.2476 8.12499C20.5254 8.60624 20.6417 9.13604 20.6967 9.74239C20.75 10.3307 20.75 11.06 20.75 11.9643V12.0358C20.75 12.94 20.75 13.6693 20.6967 14.2576C20.6418 14.8639 20.5255 15.3937 20.2476 15.875C19.9185 16.4451 19.4451 16.9185 18.875 17.2476C18.3938 17.5254 17.864 17.6417 17.2576 17.6967C16.6693 17.75 15.94 17.75 15.0358 17.75H8.00001C7.58579 17.75 7.25001 17.4142 7.25001 17C7.25001 16.5858 7.58579 16.25 8.00001 16.25H15C15.9484 16.25 16.6096 16.2493 17.1222 16.2028C17.6245 16.1573 17.9101 16.0726 18.125 15.9486C18.4671 15.7511 18.7511 15.467 18.9486 15.125C19.0726 14.9101 19.1573 14.6245 19.2028 14.1222C19.2493 13.6096 19.25 12.9484 19.25 12C19.25 11.0516 19.2493 10.3904 19.2028 9.87779C19.1573 9.37548 19.0726 9.0899 18.9486 8.87499C18.7511 8.53295 18.467 8.24892 18.125 8.05144C17.9101 7.92737 17.6245 7.84271 17.1222 7.79718C16.6096 7.75072 15.9484 7.75 15 7.75H5.81066L7.53033 9.46967C7.82322 9.76256 7.82322 10.2374 7.53033 10.5303C7.23744 10.8232 6.76256 10.8232 6.46967 10.5303L3.46967 7.53033C3.17678 7.23744 3.17678 6.76256 3.46967 6.46967L6.46967 3.46967C6.76256 3.17678 7.23744 3.17678 7.53033 3.46967Z\" fill=\"currentColor\"/>", "Check": "<path d=\"M21.5303 5.46967C21.8232 5.76256 21.8232 6.23744 21.5303 6.53033L9.53033 18.5303C9.23744 18.8232 8.76256 18.8232 8.46967 18.5303L2.46967 12.5303C2.17678 12.2374 2.17678 11.7626 2.46967 11.4697C2.76256 11.1768 3.23744 11.1768 3.53033 11.4697L9 16.9393L20.4697 5.46967C20.7626 5.17678 21.2374 5.17678 21.5303 5.46967Z\" fill=\"currentColor\"/>", "ChevronRight": "<polyline points=\"8.6666 3.6667 17 12 8.6666 20.3333\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "ChevronDown": "<polyline points=\"20.3333 8.6666 12 17 3.6667 8.6666\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"></polyline>", "More": "<path d=\"M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/><path d=\"M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z\" stroke=\"currentColor\" stroke-linejoin=\"round\" stroke-linecap=\"round\" stroke-width=\"1.5\"/>", "Tv": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.4881 1.43057C15.8026 1.70014 15.839 2.17361 15.5694 2.48811L13.2021 5.25001L16.0549 5.25001C17.4225 5.24999 18.5248 5.24997 19.3918 5.36653C20.2919 5.48755 21.0497 5.74644 21.6516 6.34836C22.2536 6.95028 22.5125 7.70815 22.6335 8.60826C22.75 9.47523 22.75 10.5776 22.75 11.9451V16.0549C22.75 17.4225 22.75 18.5248 22.6335 19.3918C22.5125 20.2919 22.2536 21.0497 21.6517 21.6517C21.0497 22.2536 20.2919 22.5125 19.3918 22.6335C18.5248 22.7501 17.4225 22.75 16.0549 22.75L7.94513 22.75C6.57754 22.75 5.47522 22.7501 4.60825 22.6335C3.70814 22.5125 2.95027 22.2536 2.34835 21.6517C1.74643 21.0497 1.48754 20.2919 1.36652 19.3918C1.24996 18.5248 1.24998 17.4225 1.25 16.0549L1.25 11.9451C1.24998 10.5775 1.24996 9.47523 1.36652 8.60826C1.48754 7.70815 1.74643 6.95028 2.34835 6.34836C2.95027 5.74645 3.70814 5.48755 4.60825 5.36654C5.47521 5.24998 6.57753 5.24999 7.94512 5.25001L10.7979 5.25001L8.43056 2.48811C8.16099 2.17361 8.19741 1.70014 8.51191 1.43057C8.8264 1.16101 9.29988 1.19743 9.56944 1.51192L12 4.34757L14.4306 1.51192C14.7001 1.19743 15.1736 1.161 15.4881 1.43057ZM16.75 6.75079L16.75 21.2492C17.7958 21.246 18.5756 21.2297 19.1919 21.1469C19.9257 21.0482 20.3142 20.8678 20.591 20.591C20.8678 20.3142 21.0482 19.9257 21.1469 19.1919C21.2484 18.4365 21.25 17.4354 21.25 16V12C21.25 10.5646 21.2484 9.56348 21.1469 8.80813C21.0482 8.07436 20.8678 7.68578 20.591 7.40902C20.3142 7.13226 19.9257 6.95181 19.1919 6.85316C18.5756 6.77031 17.7958 6.75399 16.75 6.75079ZM15.25 21.25L15.25 6.75001L8 6.75001C6.56458 6.75001 5.56347 6.75161 4.80812 6.85316C4.07435 6.95181 3.68577 7.13226 3.40901 7.40902C3.13225 7.68579 2.9518 8.07436 2.85315 8.80813C2.75159 9.56348 2.75 10.5646 2.75 12L2.75 16C2.75 17.4354 2.75159 18.4365 2.85315 19.1919C2.9518 19.9257 3.13225 20.3142 3.40901 20.591C3.68577 20.8678 4.07435 21.0482 4.80812 21.1469C5.56347 21.2484 6.56459 21.25 8 21.25L15.25 21.25Z\" fill=\"currentColor\"/><path d=\"M20 16C20 15.4477 19.5523 15 19 15C18.4477 15 18 15.4477 18 16C18 16.5523 18.4477 17 19 17C19.5523 17 20 16.5523 20 16Z\" fill=\"currentColor\"/><path d=\"M20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12Z\" fill=\"currentColor\"/>", "Trash": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.0924 1.25H8.90788C7.33861 1.24998 6.08032 1.24996 5.10577 1.38767C4.09802 1.53007 3.25979 1.83575 2.64218 2.55292C2.02457 3.27008 1.84661 4.14438 1.85528 5.1621C1.86366 6.1463 2.05033 7.39066 2.28314 8.94256L3.49937 17.0508C3.67587 18.2275 3.81878 19.1804 4.02849 19.9262C4.24683 20.7027 4.56045 21.3453 5.13662 21.8415C5.71279 22.3377 6.39485 22.5525 7.19513 22.6533C7.96377 22.75 8.92732 22.75 10.1173 22.75H13.883C15.073 22.75 16.0365 22.75 16.8052 22.6533C17.6054 22.5525 18.2875 22.3377 18.8637 21.8415C19.4398 21.3453 19.7535 20.7027 19.9718 19.9262C20.1815 19.1805 20.3244 18.2276 20.5009 17.0509L21.7172 8.94253C21.95 7.39065 22.1366 6.14629 22.145 5.1621C22.1537 4.14438 21.9757 3.27008 21.3581 2.55292C20.7405 1.83575 19.9023 1.53007 18.8945 1.38767C17.92 1.24996 16.6617 1.24998 15.0924 1.25ZM3.77879 3.53175C4.05882 3.20658 4.47927 2.9911 5.31565 2.87292C6.17295 2.75177 7.32479 2.75 8.96727 2.75H15.033C16.6755 2.75 17.8273 2.75177 18.6846 2.87292C19.521 2.9911 19.9415 3.20658 20.2215 3.53175C20.5015 3.85692 20.6523 4.30468 20.6451 5.14933C20.6448 5.18248 20.6443 5.21604 20.6435 5.25H20.5005C20.5003 5.25 20.5007 5.25 20.5005 5.25H7.00045C7.00025 5.25 7.00065 5.25 7.00045 5.25H3.35678C3.35603 5.21603 3.35551 5.18248 3.35522 5.14933C3.34803 4.30468 3.49876 3.85692 3.77879 3.53175ZM5.18949 6.75H3.48546C3.53687 7.15852 3.60161 7.61096 3.67631 8.1155L3.75015 8.18934L5.18949 6.75ZM4.05013 10.6106L4.6686 14.7338L6.37599 12.9365L4.05013 10.6106ZM5.15659 17.9593C5.17275 18.0594 5.18872 18.1563 5.20463 18.25H5.39887L5.15659 17.9593ZM6.99527 19.75C6.99879 19.75 7.00232 19.75 7.00584 19.75H13.9972C13.9991 19.75 14.0009 19.75 14.0027 19.75H18.4577C18.299 20.2287 18.1176 20.5044 17.8848 20.7049C17.6171 20.9355 17.261 21.0841 16.6178 21.165C15.9538 21.2486 15.0849 21.25 13.833 21.25H10.1673C8.91538 21.25 8.04651 21.2486 7.38247 21.165C6.73934 21.0841 6.38321 20.9355 6.11546 20.7049C5.88266 20.5044 5.70127 20.2287 5.54256 19.75H6.99527ZM15.7131 18.25H18.1895L16.9018 16.9623L15.7131 18.25ZM19.0007 16.9399C19.0087 16.8869 19.0168 16.8332 19.0249 16.7788L19.404 14.2515L17.92 15.8592L19.0007 16.9399ZM19.856 11.2381L20.2249 8.77879C20.3197 8.14673 20.4033 7.5881 20.4704 7.09045L18.16 9.40079L19.856 11.2381ZM18.6895 6.75H15.7131L17.1418 8.2977L18.6895 6.75ZM12.2532 6.75H8.81081L10.5761 8.51531L12.2532 6.75ZM11.6895 18.25H9.31081L10.5002 17.0607L11.6895 18.25ZM7.40946 11.8486L4.81081 9.25L7.00015 7.06066L9.54266 9.60317L7.40946 11.8486ZM8.47047 12.9097L10.6037 10.6642L12.6895 12.75L10.5002 14.9393L8.47047 12.9097ZM11.5608 16L13.7502 13.8107L15.8403 15.9008L13.7385 18.1777L11.5608 16ZM14.8108 12.75L16.8585 14.7977L18.9795 12.5L17.0985 10.4623L14.8108 12.75ZM13.7502 11.6893L16.0803 9.35921L13.9923 7.09721L11.6371 9.57632L13.7502 11.6893ZM7.437 13.9975L9.43949 16L7.27782 18.1617L5.50363 16.0326L7.437 13.9975Z\" fill=\"currentColor\"/>", "ArrowLeft": "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.5303 5.46967C10.8232 5.76256 10.8232 6.23744 10.5303 6.53033L5.81066 11.25H20C20.4142 11.25 20.75 11.5858 20.75 12C20.75 12.4142 20.4142 12.75 20 12.75H5.81066L10.5303 17.4697C10.8232 17.7626 10.8232 18.2374 10.5303 18.5303C10.2374 18.8232 9.76256 18.8232 9.46967 18.5303L3.46967 12.5303C3.17678 12.2374 3.17678 11.7626 3.46967 11.4697L9.46967 5.46967C9.76256 5.17678 10.2374 5.17678 10.5303 5.46967Z\" fill=\"currentColor\"/>", "X": "<path d=\"M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z\" fill=\"currentColor\"/>", "Book": "<path d=\"M7.25 7C7.25 6.58579 7.58579 6.25 8 6.25H16C16.4142 6.25 16.75 6.58579 16.75 7C16.75 7.41422 16.4142 7.75 16 7.75H8C7.58579 7.75 7.25 7.41422 7.25 7Z\" fill=\"currentColor\"/><path d=\"M8 9.75C7.58579 9.75 7.25 10.0858 7.25 10.5C7.25 10.9142 7.58579 11.25 8 11.25H13C13.4142 11.25 13.75 10.9142 13.75 10.5C13.75 10.0858 13.4142 9.75 13 9.75H8Z\" fill=\"currentColor\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M9.94513 1.25C8.57754 1.24998 7.47521 1.24996 6.60825 1.36652C5.70814 1.48754 4.95027 1.74643 4.34835 2.34835C3.74643 2.95027 3.48754 3.70814 3.36652 4.60825C3.24996 5.47521 3.24998 6.57753 3.25 7.94512V16.0549C3.24998 17.4225 3.24996 18.5248 3.36652 19.3918C3.48754 20.2919 3.74643 21.0497 4.34835 21.6517C4.95027 22.2536 5.70814 22.5125 6.60825 22.6335C7.47522 22.75 8.57754 22.75 9.94513 22.75H14.0549C15.4225 22.75 16.5248 22.75 17.3918 22.6335C18.2919 22.5125 19.0497 22.2536 19.6517 21.6517C20.2536 21.0497 20.5125 20.2919 20.6335 19.3918C20.75 18.5248 20.75 17.4225 20.75 16.0549V7.94513C20.75 6.57754 20.75 5.47522 20.6335 4.60825C20.5125 3.70814 20.2536 2.95027 19.6517 2.34835C19.0497 1.74643 18.2919 1.48754 17.3918 1.36652C16.5248 1.24996 15.4225 1.24998 14.0549 1.25H9.94513ZM5.40901 3.40901C5.68577 3.13225 6.07435 2.9518 6.80812 2.85315C7.56347 2.75159 8.56459 2.75 10 2.75H14C15.4354 2.75 16.4365 2.75159 17.1919 2.85315C17.9257 2.9518 18.3142 3.13225 18.591 3.40901C18.8678 3.68577 19.0482 4.07435 19.1469 4.80812C19.2484 5.56347 19.25 6.56459 19.25 8V15.25L7.78198 15.25C6.96402 15.2497 6.40587 15.2495 5.92721 15.3778C5.49923 15.4925 5.10224 15.6798 4.75 15.9259V8C4.75 6.56459 4.75159 5.56347 4.85315 4.80812C4.9518 4.07435 5.13225 3.68577 5.40901 3.40901ZM4.77676 18.2491C4.79196 18.6029 4.81579 18.914 4.85315 19.1919C4.9518 19.9257 5.13225 20.3142 5.40901 20.591C5.68577 20.8678 6.07435 21.0482 6.80812 21.1469C7.56347 21.2484 8.56459 21.25 10 21.25H14C15.4354 21.25 16.4365 21.2484 17.1919 21.1469C17.9257 21.0482 18.3142 20.8678 18.591 20.591C18.8678 20.3142 19.0482 19.9257 19.1469 19.1919C19.2297 18.5756 19.246 17.7958 19.2492 16.75H7.89778C6.91952 16.75 6.57752 16.7564 6.31544 16.8267C5.59612 17.0194 5.02268 17.5541 4.77676 18.2491Z\" fill=\"currentColor\"/>"};
+const DAY = 864e5;
+const INTERVALS = [0, 1*DAY, 2*DAY, 4*DAY, 8*DAY, 16*DAY, 32*DAY];
+const MASTERED_BOX = 4;
+const BATCH = 10;
+const REQUEUE_GAP = 3;
+const REGIONS = [{id:"uk",title:"英剧"},{id:"us",title:"美剧"}];
+
+/* ---------- persistence (silent, automatic) ---------- */
+const KV = (() => { try { const s = window.localStorage; s.setItem("__t","1"); s.removeItem("__t"); return s; } catch (e) { return null; } })();
+const mem = {};
+const store = {
+  get(k, d) { try { const v = KV ? KV.getItem(k) : mem[k]; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { const s = JSON.stringify(v); try { KV ? KV.setItem(k, s) : (mem[k] = s); } catch (e) { mem[k] = s; } }
+};
+const prefs = Object.assign({ show: "clarksons-farm", speak: true }, store.get("jc.prefs", {}));
+const progress = store.get("jc.progress", {});
+const savePrefs = () => store.set("jc.prefs", prefs);
+const saveProgress = () => store.set("jc.progress", progress);
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const icon = n => `<span class="icon" aria-hidden="true">${svg(n)}</span>`;
+const svg = n => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${ICONS[n] || ""}</svg>`;
+const mark = s => esc(s).replace(/\[(.+?)\]/g, "<mark>$1</mark>");
+const plain = s => s.replace(/[\[\]]/g, "");
+const showById = id => SHOWS.find(s => s.id === id) || SHOWS[0];
+const entry = (show, i) => { const p = progress[show.id] || (progress[show.id] = {}); return p[i]; };
+function statusOf(show, i) { const e = entry(show, i); if (!e) return "new"; return e.box >= MASTERED_BOX ? "known" : "learning"; }
+function counts(show) { const c = {new:0, learning:0, known:0}; show.words.forEach((_, i) => c[statusOf(show, i)]++); return c; }
+function hydrateIcons(root = document) { root.querySelectorAll("[data-i]").forEach(el => { el.innerHTML = svg(el.dataset.i); el.removeAttribute("data-i"); }); }
+
+/* ---------- speech: the system picks the accent from the show ---------- */
+let voices = [];
+const canSpeak = "speechSynthesis" in window;
+function loadVoices() { voices = canSpeak ? speechSynthesis.getVoices() : []; }
+if (canSpeak) { loadVoices(); speechSynthesis.onvoiceschanged = () => { loadVoices(); render(); }; }
+function voiceFor(lang) { return voices.find(v => v.lang === lang) || voices.find(v => v.lang && v.lang.startsWith("en")) || null; }
+function speak(text, lang) {
+  if (!canSpeak) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; const v = voiceFor(lang); if (v) u.voice = v; u.rate = .92;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- session: the system decides what to study ---------- */
+let show = showById(prefs.show);
+let session = null;
+const sessions = {};
+let history = [];
+let view = "study";
+let listFilter = "all";
+let openRow = null;
+
+function buildSession(extraNew = 0) {
+  const now = Date.now();
+  const due = [], fresh = [];
+  show.words.forEach((_, i) => { const e = entry(show, i); if (!e) fresh.push(i); else if (e.due <= now) due.push(i); });
+  due.sort((a, b) => entry(show, a).due - entry(show, b).due);
+  const queue = due.concat(fresh.slice(0, BATCH + extraNew));
+  session = { queue, total: queue.length, done: 0, revealed: false, today: session && session.show === show.id ? session.today : 0, show: show.id };
+}
+
+function current() { return session.queue[0]; }
+
+function grade(remembered) {
+  if (current() == null) return;
+  const i = current();
+  const before = entry(show, i) ? Object.assign({}, entry(show, i)) : null;
+  history.push({ show: show.id, i, before, queue: session.queue.slice(), done: session.done, total: session.total, today: session.today });
+  const e = before ? Object.assign({}, before) : { box: 0, due: 0, seen: 0 };
+  e.seen++;
+  if (remembered) {
+    e.box = Math.min(e.box + 1, INTERVALS.length - 1);
+    e.due = Date.now() + INTERVALS[e.box];
+    session.queue.shift(); session.done++; session.today++;
+  } else {
+    e.box = 0; e.due = Date.now();
+    session.queue.shift();
+    session.queue.splice(Math.min(REQUEUE_GAP, session.queue.length), 0, i);
+  }
+  progress[show.id][i] = e; saveProgress();
+  session.revealed = false;
+  toast(remembered ? "记得" : "忘了 · 稍后再出现", undo);
+  transition(() => render());
+}
+
+function undo() {
+  const h = history.pop(); if (!h) return;
+  if (h.show !== show.id) { sessions[show.id] = session; show = showById(h.show); prefs.show = show.id; savePrefs(); session = sessions[h.show] || session; }
+  if (h.before) progress[h.show][h.i] = h.before; else delete progress[h.show][h.i];
+  saveProgress();
+  session.show = h.show; session.queue = h.queue; session.done = h.done; session.total = h.total; session.today = h.today; session.revealed = true;
+  hideToast(); setView("study"); transition(() => render(), true);
+}
+
+function reveal(force) {
+  if (current() == null) return;
+  session.revealed = force == null ? !session.revealed : force;
+  const card = $(".card"); if (card) card.classList.toggle("revealed", session.revealed);
+  const m = $(".meaning"); if (m) m.setAttribute("aria-hidden", String(!session.revealed));
+  const a = $("#actions"); if (a) a.innerHTML = actionsHTML();
+  if (session.revealed && prefs.speak) speak(show.words[current()][0], show.lang);
+}
+
+/* ---------- rendering ---------- */
+function render() {
+  $("#showTitle").textContent = show.title;
+  const pct = session.total ? (session.done / session.total) * 100 : 100;
+  $("#bar").style.width = pct + "%";
+  $("#listBtn").setAttribute("aria-pressed", view === "list");
+  document.querySelector(".progress").style.visibility = view === "study" ? "visible" : "hidden";
+  $("#studyView").hidden = view !== "study";
+  $("#listView").hidden = view !== "list";
+  if (view === "study") renderStudy(); else renderList();
+}
+
+function actionsHTML() {
+  if (!session.revealed) return `<button class="btn btn-quiet btn-wide" data-act="reveal">显示释义<kbd>Space</kbd></button>`;
+  return `<button class="btn btn-quiet" data-act="forgot">忘了<kbd>←</kbd></button><button class="btn btn-main" data-act="known">记得<kbd>→</kbd></button>`;
+}
+
+function renderStudy() {
+  const el = $("#studyView");
+  const i = current();
+  if (i == null) {
+    const c = counts(show);
+    const next = show.words.map((_, k) => entry(show, k)).filter(Boolean).map(e => e.due).filter(d => d > Date.now()).sort((a,b)=>a-b)[0];
+    const more = c.new > 0;
+    el.innerHTML = `<div class="done">
+      <h2>今天完成</h2>
+      <div class="big">${session.today}<span class="unit">个</span></div>
+      <div class="stats"><span>已掌握 ${c.known}</span><span>学习中 ${c.learning}</span><span>未学 ${c.new}</span>${!more && next ? `<span>下次复习 ${whenText(next)}</span>` : ""}</div>
+      ${more ? `<div class="actions"><button class="btn btn-main" data-act="more">再学 ${Math.min(BATCH, c.new)} 个<kbd>Enter</kbd></button></div>` : ""}
+    </div>`;
+    return;
+  }
+  const [w, ipa, pos, cn, sent, tag] = show.words[i];
+  el.innerHTML = `<article class="card${session.revealed ? " revealed" : ""}" tabindex="-1" data-act="card">
+    <div class="headword"><h1 class="word">${esc(w)}</h1>${canSpeak ? `<button class="icon-btn say" data-act="say" aria-label="发音" title="发音  P">${icon("VolumeHigh")}</button>` : ""}</div>
+    <div class="phon"><b>${esc(pos)}</b>/${esc(ipa)}/</div>
+    <p class="quote">${mark(sent)}</p>
+    <div class="scene">${esc(show.title)} · ${esc(tag)}</div>
+    <div class="meaning" aria-hidden="${!session.revealed}">${esc(cn)}</div>
+  </article>
+  <div class="actions" id="actions">${actionsHTML()}</div>`;
+}
+
+function whenText(t) {
+  const d = Math.round((t - Date.now()) / DAY);
+  if (d <= 0) return "今天稍后"; if (d === 1) return "明天"; return `${d} 天后`;
+}
+
+function renderList() {
+  const el = $("#listView");
+  const c = counts(show);
+  const filters = [["all","全部",show.words.length],["learning","学习中",c.learning],["known","已掌握",c.known],["new","未学",c.new]];
+  const rows = show.words.map((w, i) => ({ w, i, s: statusOf(show, i) })).filter(r => listFilter === "all" || r.s === listFilter);
+  el.innerHTML = `<div class="list-head"><h2>${esc(show.title)}</h2>
+    <div class="seg" role="group">${filters.map(([id, t, n]) => `<button data-filter="${id}" aria-pressed="${listFilter === id}">${t} ${n}</button>`).join("")}</div></div>
+    ${rows.length ? `<ul class="rows">${rows.map(({w, i, s}) => `<li class="row">
+      <div class="row-line"><button class="row-main" data-row="${i}" aria-expanded="${openRow === i}"><span class="dot ${s}"></span><span class="w">${esc(w[0])}</span><span class="m">${esc(w[3])}</span></button>${canSpeak ? `<button class="icon-btn say" data-say="${i}" aria-label="发音 ${esc(w[0])}">${icon("VolumeHigh")}</button>` : ""}</div>
+      ${openRow === i ? `<div class="row-detail"><div>${mark(w[4])}</div><div class="scene">/${esc(w[1])}/ · ${esc(w[5])}</div></div>` : ""}
+    </li>`).join("")}</ul>` : `<div class="empty">—</div>`}`;
+}
+
+function setView(v) { if (v === "list" && view !== "list") listFilter = "all"; view = v; openRow = null; render(); }
+
+function transition(fn, back) {
+  const card = $(".card");
+  if (!card || matchMedia("(prefers-reduced-motion: reduce)").matches) { fn(); return; }
+  card.classList.add("leaving");
+  setTimeout(() => { fn(); const n = $(".card"); if (n) { n.classList.add("entering"); requestAnimationFrame(() => requestAnimationFrame(() => n.classList.remove("entering"))); } }, 140);
+}
+
+/* ---------- toast with undo (never steals focus) ---------- */
+let toastTimer, toastAction;
+function toast(text, action) {
+  $("#toastText").textContent = text; toastAction = action;
+  $("#toastUndo").hidden = !action;
+  $("#toast").classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 5000);
+}
+function hideToast() { $("#toast").classList.remove("show"); }
+$("#toastUndo").addEventListener("mousedown", e => e.preventDefault());
+$("#toastUndo").addEventListener("click", () => toastAction && toastAction());
+
+/* ---------- show menu: hover intent + safe triangle ---------- */
+const OPEN_DELAY = 90, CLOSE_DELAY = 320, AIM_DELAY = 320;
+const root = $("#rootMenu"), sub = $("#subMenu"), trigger = $("#showTrigger");
+let activeRegion = null, closeT, aimAnchor = null, lastPt = {x:0, y:0};
+
+function buildRoot() {
+  root.innerHTML = REGIONS.map(r => `<button class="mi" role="menuitem" data-region="${r.id}" aria-haspopup="menu"><span>${r.title}</span>${icon("ChevronRight")}</button>`).join("");
+}
+function buildSub(regionId) {
+  const list = SHOWS.filter(s => s.region === regionId);
+  sub.innerHTML = list.map(s => { const c = counts(s); return `<button class="mi${s.id === show.id ? " current" : ""}" role="menuitemradio" aria-checked="${s.id === show.id}" data-show="${s.id}"><span>${esc(s.title)}</span><span class="meta">${c.known + c.learning ? `${c.known + c.learning}/${s.words.length}` : `${s.words.length} 词`}</span></button>`; }).join("");
+}
+function place(menu, x, y) { menu.style.left = x + "px"; menu.style.top = y + "px"; }
+function openRoot() {
+  closeMore();
+  buildRoot();
+  const r = trigger.getBoundingClientRect();
+  place(root, r.left, r.bottom + 8);
+  root.classList.add("open"); trigger.setAttribute("aria-expanded", "true");
+  openRegion(show.region, true);
+}
+function closeRoot() {
+  root.classList.remove("open"); sub.classList.remove("open"); trigger.setAttribute("aria-expanded", "false");
+  activeRegion = null; aimAnchor = null; cancelPending(); clearTimeout(closeT);
+}
+function openRegion(id, instant) {
+  activeRegion = id;
+  root.querySelectorAll("[data-region]").forEach(b => b.classList.toggle("active", b.dataset.region === id));
+  buildSub(id);
+  const item = root.querySelector(`[data-region="${id}"]`).getBoundingClientRect();
+  const rr = root.getBoundingClientRect();
+  let x = rr.right + 4, y = item.top - 8;
+  const w = 248;
+  if (x + w > innerWidth - 8) x = Math.max(8, rr.left + 24), y = rr.bottom + 4;
+  place(sub, x, y); sub.style.minWidth = w + "px";
+  sub.classList.add("open");
+}
+function inTriangle(p, a, b, c) {
+  const s = (p1, p2, p3) => (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+  const d1 = s(p, a, b), d2 = s(p, b, c), d3 = s(p, c, a);
+  const neg = d1 < 0 || d2 < 0 || d3 < 0, pos = d1 > 0 || d2 > 0 || d3 > 0;
+  return !(neg && pos);
+}
+/* Safe triangle: apex = last pointer position inside the parent item, base = near edge of the open submenu. */
+function aiming() {
+  if (!aimAnchor || !sub.classList.contains("open")) return false;
+  const r = sub.getBoundingClientRect();
+  const nearX = r.left >= aimAnchor.x ? r.left : r.right;
+  return inTriangle(lastPt, aimAnchor, {x: nearX, y: r.top - 4}, {x: nearX, y: r.bottom + 4});
+}
+let pending = null;
+function hoveredRegion() { const el = document.elementFromPoint(lastPt.x, lastPt.y); const it = el && el.closest && el.closest("#rootMenu [data-region]"); return it ? it.dataset.region : null; }
+function schedule(id, kind) {
+  if (pending && pending.id === id && pending.kind === kind) return;
+  if (pending) clearTimeout(pending.t);
+  pending = { id, kind, t: setTimeout(() => { pending = null; if (hoveredRegion() === id) openRegion(id); }, kind === "aim" ? AIM_DELAY : OPEN_DELAY) };
+}
+function cancelPending() { if (pending) clearTimeout(pending.t); pending = null; }
+document.addEventListener("mousemove", e => {
+  lastPt = {x: e.clientX, y: e.clientY};
+  if (!root.classList.contains("open")) return;
+  const overRoot = root.contains(e.target), overSub = sub.contains(e.target), overTrig = trigger.contains(e.target);
+  clearTimeout(closeT);
+  if (!(overRoot || overSub || overTrig)) closeT = setTimeout(() => { if (!aiming()) closeRoot(); }, CLOSE_DELAY);
+  if (overSub) { aimAnchor = null; cancelPending(); return; }
+  const item = e.target.closest && e.target.closest("#rootMenu [data-region]");
+  if (item && item.dataset.region === activeRegion) { aimAnchor = {x: lastPt.x, y: lastPt.y}; cancelPending(); return; }
+  const isAiming = aiming();
+  if (!isAiming) aimAnchor = null;
+  if (item) schedule(item.dataset.region, isAiming ? "aim" : "open");
+});
+root.addEventListener("click", e => { const item = e.target.closest("[data-region]"); if (item) { openRegion(item.dataset.region); const f = sub.querySelector(".mi"); f && f.focus(); } });
+sub.addEventListener("click", e => { const item = e.target.closest("[data-show]"); if (item) switchShow(item.dataset.show); });
+trigger.addEventListener("click", () => root.classList.contains("open") ? closeRoot() : openRoot());
+
+function switchShow(id) {
+  closeRoot();
+  if (id === show.id) return;
+  sessions[show.id] = session;
+  show = showById(id); prefs.show = id; savePrefs();
+  session = sessions[id] || null; if (!session) buildSession(); openRow = null;
+  transition(() => render());
+  if (view === "study") requestAnimationFrame(() => { const c = $(".card"); c && c.focus({preventScroll:true}); });
+}
+
+/* menu keyboard */
+function menuKeys(e) {
+  const menus = [root, sub, more].filter(m => m.classList.contains("open"));
+  if (!menus.length) return false;
+  const inMenu = menus.find(m => m.contains(document.activeElement));
+  if (e.key === "Escape") { closeRoot(); closeMore(); trigger.focus(); return true; }
+  if (!inMenu) { if (e.key === "ArrowDown") { const f = menus[0].querySelector(".mi"); f && f.focus(); return true; } return false; }
+  const items = [...inMenu.querySelectorAll(".mi")]; const k = items.indexOf(document.activeElement);
+  if (e.key === "ArrowDown") { items[(k + 1) % items.length].focus(); return true; }
+  if (e.key === "ArrowUp") { items[(k - 1 + items.length) % items.length].focus(); return true; }
+  if (e.key === "ArrowRight" && inMenu === root) { const id = document.activeElement.dataset.region; openRegion(id); sub.querySelector(".mi").focus(); return true; }
+  if (e.key === "ArrowLeft" && inMenu === sub) { root.querySelector(`[data-region="${activeRegion}"]`).focus(); return true; }
+  return e.key === " " || e.key === "Enter" ? false : true;
+}
+
+/* ---------- more menu ---------- */
+const more = $("#moreMenu"), moreBtn = $("#moreBtn");
+function buildMore() {
+  more.innerHTML = `<button class="mi" role="menuitemcheckbox" aria-checked="${prefs.speak}" data-more="speak"><span>自动发音</span>${prefs.speak ? icon("Check") : ""}</button>
+  <button class="mi danger" role="menuitem" data-more="reset"><i class="fill"></i><span id="resetLabel">重置 ${esc(show.title)}</span></button>`;
+}
+function openMore() { closeRoot(); buildMore(); const r = moreBtn.getBoundingClientRect(); more.style.minWidth = "232px"; place(more, Math.max(8, r.right - 232), r.bottom + 8); more.classList.add("open"); moreBtn.setAttribute("aria-expanded","true"); }
+function closeMore() { more.classList.remove("open"); moreBtn.setAttribute("aria-expanded","false"); }
+moreBtn.addEventListener("click", () => more.classList.contains("open") ? closeMore() : openMore());
+more.addEventListener("click", e => {
+  const b = e.target.closest("[data-more]"); if (!b) return;
+  if (b.dataset.more === "speak") { prefs.speak = !prefs.speak; savePrefs(); buildMore(); more.querySelector('[data-more="speak"]').focus(); }
+});
+/* destructive: press and hold, then undo is still offered */
+let holdT;
+function startHold(b) { b.classList.add("holding"); $("#resetLabel").textContent = "继续按住…"; holdT = setTimeout(() => { doReset(); }, 1200); }
+function stopHold(b) { clearTimeout(holdT); if (b) { b.classList.remove("holding"); const l = $("#resetLabel"); if (l) l.textContent = "按住以重置"; } }
+more.addEventListener("pointerdown", e => { const b = e.target.closest('[data-more="reset"]'); if (b) { e.preventDefault(); startHold(b); } });
+more.addEventListener("pointerup", e => stopHold(e.target.closest('[data-more="reset"]') || more.querySelector('[data-more="reset"]')));
+more.addEventListener("pointerleave", () => stopHold(more.querySelector('[data-more="reset"]')));
+more.addEventListener("keydown", e => { const b = e.target.closest('[data-more="reset"]'); if (b && (e.key === "Enter" || e.key === " ") && !e.repeat) { e.preventDefault(); startHold(b); } });
+more.addEventListener("keyup", e => { const b = e.target.closest('[data-more="reset"]'); if (b && (e.key === "Enter" || e.key === " ")) stopHold(b); });
+function doReset() {
+  const snap = JSON.stringify(progress[show.id] || {});
+  const id = show.id;
+  const prevSession = session;
+  progress[id] = {}; saveProgress(); closeMore();
+  history = history.filter(h => h.show !== id);
+  session = null; buildSession(); render();
+  toast(`已重置 ${show.title}`, () => { progress[id] = JSON.parse(snap); saveProgress(); if (show.id === id) session = prevSession; else sessions[id] = prevSession; hideToast(); render(); });
+}
+
+/* ---------- clicks ---------- */
+document.addEventListener("click", e => {
+  if (!root.contains(e.target) && !sub.contains(e.target) && !trigger.contains(e.target)) closeRoot();
+  if (!more.contains(e.target) && !moreBtn.contains(e.target)) closeMore();
+  const sayRow = e.target.closest("[data-say]");
+  if (sayRow) { e.stopPropagation(); speak(show.words[+sayRow.dataset.say][0], show.lang); return; }
+  const act = e.target.closest("[data-act]");
+  if (act) {
+    const a = act.dataset.act;
+    if (a === "say") { speak(show.words[current()][0], show.lang); return; }
+    if (a === "reveal" || a === "card") { if (getSelection().toString()) return; reveal(); return; }
+    if (a === "known") return grade(true);
+    if (a === "forgot") return grade(false);
+    if (a === "more") { buildSession(); render(); return; }
+  }
+  const f = e.target.closest("[data-filter]"); if (f) { listFilter = f.dataset.filter; openRow = null; renderList(); return; }
+  const r = e.target.closest("[data-row]"); if (r) { const i = +r.dataset.row; openRow = openRow === i ? null : i; renderList(); const nb = document.querySelector(`[data-row="${i}"]`); nb && nb.focus({preventScroll:true}); }
+});
+$("#listBtn").addEventListener("click", () => setView(view === "list" ? "study" : "list"));
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown", e => {
+  if (menuKeys(e)) { e.preventDefault(); return; }
+  if (e.target.closest && e.target.closest("input,textarea,[contenteditable]")) return;
+  const k = e.key, mod = e.metaKey || e.ctrlKey;
+  if ((k === "z" || k === "Z") && (mod || !e.altKey)) { if (history.length) { e.preventDefault(); undo(); } return; }
+  if (mod || e.altKey) return;
+  if (k === "l" || k === "L") { setView(view === "list" ? "study" : "list"); return; }
+  if (k === "Escape" && view === "list") { setView("study"); return; }
+  if (view !== "study") return;
+  if (current() == null) { if (k === "Enter") { const b = document.querySelector('[data-act="more"]'); b && b.click(); } return; }
+  const onButton = document.activeElement && document.activeElement.tagName === "BUTTON" && !document.activeElement.closest(".card");
+  if (k === " " && !onButton) { e.preventDefault(); reveal(); }
+  else if (k === "Enter" && !onButton) { e.preventDefault(); reveal(); }
+  else if (k === "ArrowRight" || k === "2") { e.preventDefault(); grade(true); }
+  else if (k === "ArrowLeft" || k === "1") { e.preventDefault(); grade(false); }
+  else if (k === "p" || k === "P") speak(show.words[current()][0], show.lang);
+});
+addEventListener("resize", () => { closeRoot(); closeMore(); });
+addEventListener("scroll", () => { closeRoot(); closeMore(); }, {passive:true});
+
+/* ---------- boot ---------- */
+hydrateIcons();
+buildSession();
+render();
+</script>
+</body>
+</html>
