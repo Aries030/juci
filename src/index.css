@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* coss ui theme (neutral), adapted to this project's spec:
+   Geist, #181818 primary text, #6A6A6A secondary text, one accent colour (--brand). */
+:root {
+  --radius: 0.75rem;
+  --background: #ffffff;
+  --foreground: #181818;
+  --card: #ffffff;
+  --card-foreground: #181818;
+  --popover: #ffffff;
+  --popover-foreground: #181818;
+  --primary: #181818;
+  --primary-foreground: #fafafa;
+  --secondary: rgb(0 0 0 / 4%);
+  --secondary-foreground: #181818;
+  --muted: rgb(0 0 0 / 4%);
+  --muted-foreground: #6a6a6a;
+  --accent: rgb(0 0 0 / 4%);
+  --accent-foreground: #181818;
+  --destructive: #ef4444;
+  --destructive-foreground: #b91c1c;
+  --info: #3b82f6;
+  --info-foreground: #1d4ed8;
+  --success: #10b981;
+  --success-foreground: #047857;
+  --warning: #f59e0b;
+  --warning-foreground: #b45309;
+  --border: rgb(0 0 0 / 8%);
+  --input: rgb(0 0 0 / 10%);
+  --ring: #a3a3a3;
+  --brand: #0066cc;
+}
+
+@theme inline {
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+}
+
+@keyframes toast-success-odd { 0% { scale: 1; } 30% { scale: 1.025; } 60% { scale: 0.99; } 100% { scale: 1; } }
+@keyframes toast-success-even { 0% { scale: 1; } 30% { scale: 1.025; } 60% { scale: 0.99; } 100% { scale: 1; } }
+@keyframes toast-error-odd { 0% { translate: 0 0; } 25% { translate: -3px 0; } 50% { translate: 3px 0; } 75% { translate: -3px 0; } 100% { translate: 0 0; } }
+@keyframes toast-error-even { 0% { translate: 0 0; } 25% { translate: -3px 0; } 50% { translate: 3px 0; } 75% { translate: -3px 0; } 100% { translate: 0 0; } }
+
+/* ---------- app-specific pieces ---------- */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.card-in { animation: card-in 0.2s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+.blank {
+  display: inline-block;
+  width: 64px;
+  height: 1em;
+  margin: 0 4px;
+  vertical-align: -4px;
+  border-bottom: 2px solid var(--foreground);
+}
+
+/* spelling slots */
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin-top: 32px;
+  min-height: 48px;
+}
+.slot {
+  flex: none;
+  width: var(--sw);
+  height: 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--input);
+  font-size: var(--sf);
+  font-weight: 600;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s;
+}
+.slot.filled { border-color: var(--foreground); }
+.slot.next { border-color: var(--brand); }
+.slot.hinted, .slot.given { color: var(--muted-foreground); }
+.slot.bad { color: var(--muted-foreground); text-decoration: line-through; border-color: var(--muted-foreground); }
+.slots.ok .slot { color: var(--brand); border-color: var(--brand); }
+
+/* letter wheel: tiles are round coss outline toggles */
+.wheel {
+  position: relative;
+  margin: 40px auto 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.2s;
+}
+.wheel.idle { opacity: 0.4; pointer-events: none; }
+.wheel svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.wheel polyline { fill: none; stroke: var(--brand); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.32; }
+.tile {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--input);
+  background: var(--background);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+  font-size: var(--tf);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+}
+.tile:hover { background: rgb(0 0 0 / 2%); }
+.tile.on { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: none; }
+
+.shake { animation: shake 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+@keyframes shake { 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+.wheel.shake { animation: nudge 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+@keyframes nudge { 30% { transform: translateX(-4px); } 70% { transform: translateX(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
