@@ -27,9 +27,10 @@ export function statusOf(p: Progress, show: Show, i: number): Status {
   return e.box >= MASTERED_BOX ? "known" : "learning";
 }
 
-export function counts(p: Progress, show: Show): Record<Status, number> {
+export function counts(p: Progress, show: Show, filter?: Set<number> | null): Record<Status, number> {
   const c = { known: 0, learning: 0, new: 0 };
   show.words.forEach((_, i) => {
+    if (filter && !filter.has(i)) return;
     c[statusOf(p, show, i)]++;
   });
   return c;
@@ -37,11 +38,12 @@ export function counts(p: Progress, show: Show): Record<Status, number> {
 
 /* The system decides what to study: words that are due first (oldest first),
    then up to BATCH new words. New words are recognised first, then spelled. */
-export function buildSession(p: Progress, show: Show, today = 0): Session {
+export function buildSession(p: Progress, show: Show, today = 0, filter?: Set<number> | null): Session {
   const now = Date.now();
   const due: number[] = [];
   const fresh: number[] = [];
   show.words.forEach((_, i) => {
+    if (filter && !filter.has(i)) return;
     const e = entryOf(p, show.id, i);
     if (!e) fresh.push(i);
     else if (e.due <= now) due.push(i);
@@ -59,10 +61,11 @@ export function requeue(queue: Item[], item: Item): Item[] {
   return q;
 }
 
-export function nextReviewText(p: Progress, show: Show): string | null {
+export function nextReviewText(p: Progress, show: Show, filter?: Set<number> | null): string | null {
   const now = Date.now();
-  const next = Object.values(p[show.id] || {})
-    .map((e) => e.due)
+  const next = Object.entries(p[show.id] || {})
+    .filter(([i]) => !filter || filter.has(Number(i)))
+    .map(([, e]) => e.due)
     .filter((d) => d > now)
     .sort((a, b) => a - b)[0];
   if (!next) return null;
