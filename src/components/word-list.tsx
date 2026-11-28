@@ -9,19 +9,20 @@ import { cn } from "@/lib/utils";
 type Filter = "all" | Status;
 
 export function WordList({ study }: { study: Study }): React.ReactElement {
-  const { show, core, accent } = study;
+  const { show, core, accent, seasonFilter } = study;
   const [filter, setFilter] = React.useState<Filter>("all");
   const [open, setOpen] = React.useState<number | null>(null);
-  const c = counts(core.progress, show);
+  const c = counts(core.progress, show, seasonFilter);
+  const total = seasonFilter ? seasonFilter.size : show.words.length;
   const filters: [Filter, string, number][] = [
-    ["all", "全部", show.words.length],
+    ["all", "全部", total],
     ["learning", "学习中", c.learning],
     ["known", "已掌握", c.known],
     ["new", "未学", c.new],
   ];
   const rows = show.words
     .map((w, i) => ({ i, s: statusOf(core.progress, show, i), w }))
-    .filter((r) => filter === "all" || r.s === filter);
+    .filter((r) => (!seasonFilter || seasonFilter.has(r.i)) && (filter === "all" || r.s === filter));
 
   return (
     <div>
