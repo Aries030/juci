@@ -5,10 +5,10 @@ import type { Study } from "@/hooks/use-study";
 import { BATCH, counts, nextReviewText } from "@/lib/srs";
 
 export function DoneView({ study }: { study: Study }): React.ReactElement {
-  const { show, core } = study;
-  const c = counts(core.progress, show);
+  const { show, core, seasonFilter } = study;
+  const c = counts(core.progress, show, seasonFilter);
   const more = c.new > 0;
-  const next = more ? null : nextReviewText(core.progress, show);
+  const next = more ? null : nextReviewText(core.progress, show, seasonFilter);
   return (
     <div>
       <h2 className="font-semibold text-lg">今天完成</h2>
