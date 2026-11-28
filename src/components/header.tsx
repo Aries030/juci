@@ -42,7 +42,7 @@ function ShowMenu({ study }: { study: Study }) {
   return (
     <Menu>
       <MenuTrigger
-        render={<Button className="min-w-0 max-w-[60vw] shrink gap-1 px-3 font-semibold text-lg sm:text-lg" size="lg" variant="ghost" />}
+        render={<Button className="min-w-0 shrink gap-1 px-3 font-semibold text-lg sm:text-lg" size="lg" variant="ghost" />}
       >
         <span className="truncate">{show.title}</span>
         <Icon className="opacity-60 transition-transform in-data-popup-open:rotate-180" name="ChevronDown" />
@@ -139,6 +139,36 @@ function SoundPopover({ study }: { study: Study }) {
   );
 }
 
+/* Only shown for a show whose sentences carry season tags, and only once there's more than one season to choose from. */
+function SeasonMenu({ study }: { study: Study }) {
+  const { season, seasons, setSeason } = study;
+  if (seasons.length < 2) return null;
+  const label = season == null ? "全部季" : `S${season}`;
+  return (
+    <Menu>
+      <MenuTrigger render={<Button className="shrink-0 gap-1 px-2 text-muted-foreground" size="sm" variant="ghost" />}>
+        {label}
+        <Icon className="opacity-60 transition-transform in-data-popup-open:rotate-180" name="ChevronDown" />
+      </MenuTrigger>
+      <MenuPopup align="start" className="min-w-32">
+        <MenuRadioGroup
+          onValueChange={(v: unknown) => setSeason(v === "all" ? null : Number(v))}
+          value={season == null ? "all" : String(season)}
+        >
+          <MenuRadioItem closeOnClick value="all">
+            全部季
+          </MenuRadioItem>
+          {seasons.map((n) => (
+            <MenuRadioItem closeOnClick key={n} value={String(n)}>
+              第 {n} 季
+            </MenuRadioItem>
+          ))}
+        </MenuRadioGroup>
+      </MenuPopup>
+    </Menu>
+  );
+}
+
 /* Destructive and rare: hidden in "more", press and hold to confirm, and still undoable afterwards. */
 function MoreMenu({ study }: { study: Study }) {
   const [open, setOpen] = React.useState(false);
@@ -222,7 +252,10 @@ export function Header({ study }: { study: Study }): React.ReactElement {
   return (
     <>
       <header className="group/header sticky top-0 z-20 flex h-18 items-center justify-between gap-4 bg-background px-8 max-sm:h-16 max-sm:gap-2 max-sm:px-4">
-        <ShowMenu study={study} />
+        <div className="flex min-w-0 flex-1 items-center gap-1">
+          <ShowMenu study={study} />
+          <SeasonMenu study={study} />
+        </div>
         <div className="flex shrink-0 items-center gap-1">
           <SoundPopover study={study} />
           <Tip
