@@ -258,7 +258,6 @@ export function SpellCard({ study, ref }: { study: Study; ref?: React.Ref<SpellH
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest("[data-back]")) return;
     if (s.phase !== "typing") return;
     const t = tileAt(e.clientX, e.clientY);
     if (t == null) return;
@@ -307,6 +306,7 @@ export function SpellCard({ study, ref }: { study: Study; ref?: React.Ref<SpellH
   const sf = Math.max(14, Math.min(28, Math.round((sw * 0.9) / 2) * 2));
   const failed = s.phase === "failed";
   const solved = s.phase === "done" || failed;
+  const canDelete = s.phase === "typing" && s.used.length > 0;
   const shown = failed ? s.ans : typed();
   let k = 0;
 
@@ -367,6 +367,7 @@ export function SpellCard({ study, ref }: { study: Study; ref?: React.Ref<SpellH
         ref={wheelRef}
         style={{ "--tf": `${geo.T >= 48 ? 22 : 18}px`, height: geo.S, width: geo.S } as React.CSSProperties}
       >
+        {/* the circle's centre stays clear so the wheel itself is never obstructed; delete lives in the row below */}
         <svg height={geo.S} width={geo.S}>
           <polyline ref={lineRef} />
         </svg>
@@ -383,38 +384,40 @@ export function SpellCard({ study, ref }: { study: Study; ref?: React.Ref<SpellH
             </span>
           );
         })}
-        {s.phase === "typing" && s.used.length > 0 && (
-          <Button
-            aria-label="删除"
-            className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 text-muted-foreground"
-            data-back=""
-            onClick={removeLast}
-            size="icon"
-            variant="ghost"
-          >
-            <Icon name="Backspace" />
-          </Button>
-        )}
       </div>
-      <div className="mt-10">
+      <div className="mt-10 flex gap-3">
         {failed ? (
           <Button className="w-full gap-3" key="next" onClick={() => finish(false)} size="xl">
             继续<Kbd className="bg-white/16 text-white/80 pointer-coarse:hidden">Enter</Kbd>
           </Button>
         ) : (
-          <Button
-            className={cn("w-full gap-3", s.phase === "done" && "invisible")}
-            key="hint"
-            onClick={(e) => {
-              if (e.detail > 0) e.currentTarget.blur();
-              hint();
-            }}
-            size="xl"
-            tabIndex={s.phase === "done" ? -1 : undefined}
-            variant="outline"
-          >
-            提示<Kbd className="pointer-coarse:hidden">/</Kbd>
-          </Button>
+          <>
+            <Button
+              aria-label="删除"
+              className={cn("w-14 shrink-0 px-0", !canDelete && "invisible")}
+              disabled={!canDelete}
+              key="back"
+              onClick={removeLast}
+              size="xl"
+              tabIndex={canDelete ? undefined : -1}
+              variant="outline"
+            >
+              <Icon name="Backspace" />
+            </Button>
+            <Button
+              className={cn("flex-1 gap-3", s.phase === "done" && "invisible")}
+              key="hint"
+              onClick={(e) => {
+                if (e.detail > 0) e.currentTarget.blur();
+                hint();
+              }}
+              size="xl"
+              tabIndex={s.phase === "done" ? -1 : undefined}
+              variant="outline"
+            >
+              提示<Kbd className="pointer-coarse:hidden">/</Kbd>
+            </Button>
+          </>
         )}
       </div>
     </>
