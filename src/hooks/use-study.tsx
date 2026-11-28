@@ -5,6 +5,7 @@ import { SHOWS } from "@/data/shows";
 import type { Show } from "@/data/types";
 import { load, save } from "@/lib/storage";
 import { preload, setSpeechVolume, speak, stop } from "@/lib/speech";
+import { seasonIndices, seasonsOf } from "@/lib/season";
 import {
   buildSession,
   entryOf,
@@ -24,10 +25,17 @@ export interface Prefs {
   volume: number;
   muted: boolean;
   accent: Accent | null;
+  /* which season is in focus per show; absent/null means every season */
+  season: Record<string, number | null>;
 }
-const DEFAULT_PREFS: Prefs = { accent: null, muted: false, show: "clarksons-farm", speak: true, volume: 1 };
+const DEFAULT_PREFS: Prefs = { accent: null, muted: false, season: {}, show: "clarksons-farm", speak: true, volume: 1 };
 
 export const showById = (id: string): Show => SHOWS.find((s) => s.id === id) || SHOWS[0];
+
+function seasonFilterFor(prefs: Prefs, show: Show): Set<number> | null {
+  const season = prefs.season[show.id] ?? null;
+  return season == null ? null : seasonIndices(show, season);
+}
 
 interface Core {
   progress: Progress;
@@ -59,7 +67,8 @@ export function useStudy() {
 
   const [core, setCore] = useState<Core>(() => {
     const progress = load<Progress>("jc.progress", {});
-    return { epoch: 0, progress, revealed: false, session: buildSession(progress, showById(prefsRef.current.show)) };
+    const show0 = showById(prefsRef.current.show);
+    return { epoch: 0, progress, revealed: false, session: buildSession(progress, show0, 0, seasonFilterFor(prefsRef.current, show0)) };
   });
   const coreRef = useRef(core);
   const commit = useCallback((next: Core) => {
@@ -82,6 +91,9 @@ export function useStudy() {
   }, [vol]);
 
   const show = showById(core.session.show);
+  const seasons = useMemo(() => seasonsOf(show), [show]);
+  const season = prefs.season[show.id] ?? null;
+  const seasonFilter = useMemo(() => (season == null ? null : seasonIndices(show, season)), [show, season]);
   const current: Item | undefined = core.session.queue[0];
   const accent: Accent = prefs.accent ?? (show.lang === "en-US" ? "us" : "uk");
   const lang = accent === "us" ? "en-US" : "en-GB";
@@ -222,15 +234,29 @@ export function useStudy() {
     if (id === c.session.show) return;
     stop();
     sessions.current[c.session.show] = c.session;
-    const session = sessions.current[id] || buildSession(c.progress, showById(id));
+    const target = showById(id);
+    const session = sessions.current[id] || buildSession(c.progress, target, 0, seasonFilterFor(prefsRef.current, target));
     setPrefs((p) => ({ ...p, show: id }));
     commit({ ...c, epoch: c.epoch + 1, revealed: false, session });
   }, [commit, setPrefs]);
 
   const studyMore = useCallback(() => {
     const c = coreRef.current;
-    commit({ ...c, epoch: c.epoch + 1, revealed: false, session: buildSession(c.progress, showById(c.session.show), c.session.today) });
+    const target = showById(c.session.show);
+    commit({ ...c, epoch: c.epoch + 1, revealed: false, session: buildSession(c.progress, target, c.session.today, seasonFilterFor(prefsRef.current, target)) });
   }, [commit]);
+
+  /* changing the season rebuilds the queue right away, scoped to it; the list view follows the same choice */
+  const setSeason = useCallback((value: number | null) => {
+    const c = coreRef.current;
+    const id = c.session.show;
+    setPrefs((p) => ({ ...p, season: { ...p.season, [id]: value } }));
+    const target = showById(id);
+    const filter = value == null ? null : seasonIndices(target, value);
+    const session = buildSession(c.progress, target, c.session.today, filter);
+    sessions.current[id] = session;
+    commit({ ...c, epoch: c.epoch + 1, revealed: false, session });
+  }, [commit, setPrefs]);
 
   const resetShow = useCallback(() => {
     const c = coreRef.current;
@@ -238,8 +264,9 @@ export function useStudy() {
     const saved = c.progress[id] || {};
     const prevSession = c.session;
     const progress = { ...c.progress, [id]: {} };
+    const target = showById(id);
     history.current = history.current.filter((h) => h.show !== id);
-    commit({ epoch: c.epoch + 1, progress, revealed: false, session: buildSession(progress, showById(id)) });
+    commit({ epoch: c.epoch + 1, progress, revealed: false, session: buildSession(progress, target, 0, seasonFilterFor(prefsRef.current, target)) });
     notify(`已重置 ${showById(id).title}`, () => {
       const n = coreRef.current;
       const restored = { ...n.progress, [id]: saved };
@@ -269,8 +296,12 @@ export function useStudy() {
       reveal,
       say,
       sayCurrent,
+      season,
+      seasonFilter,
+      seasons,
       setAccent,
       setPrefs,
+      setSeason,
       setView,
       show,
       studyMore,
@@ -279,7 +310,7 @@ export function useStudy() {
       view,
       vol,
     }),
-    [accent, core, current, finishSpell, grade, lang, pct, prefs, resetShow, reveal, say, sayCurrent, setAccent, setPrefs, show, studyMore, switchShow, undo, view, vol],
+    [accent, core, current, finishSpell, grade, lang, pct, prefs, resetShow, reveal, say, sayCurrent, season, seasonFilter, seasons, setAccent, setPrefs, setSeason, show, studyMore, switchShow, undo, view, vol],
   );
 }
 
